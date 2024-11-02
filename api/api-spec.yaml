@@ -1,0 +1,325 @@
+openapi: 3.1.0
+info:
+  title: Vexora API
+  description: |
+    RESTful API specification for Vexora - A User Authentication and Music History Management System
+    
+    ## Features
+    - User authentication (login, register, refresh token)
+    - User profile management
+    - Music history tracking
+    - Playlist management
+    
+    ## Authentication
+    The API uses JWT Bearer token authentication. Include the token in the Authorization header:
+    `Authorization: Bearer <your_token>`
+  version: 1.0.0
+  contact:
+    name: Vexora Support
+    email: ryu4w@gmail.com
+
+servers:
+  - url: http://localhost:5555/api/v1
+    description: Local Development Server
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from login or register endpoints
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        code:
+          type: number
+          description: HTTP status code
+        status:
+          type: string
+          description: Error message
+
+    TokenResponse:
+      type: object
+      properties:
+        code:
+          type: number
+          description: HTTP status code
+        status:
+          type: string
+          description: Response status message
+        data:
+          type: object
+          properties:
+            accessToken:
+              type: string
+              description: JWT access token for API authentication
+            refreshToken:
+              type: string
+              description: Token used to obtain new access tokens
+
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: number
+          description: Unique user identifier
+        profile_picture:
+          type: string
+          description: URL to user's profile picture
+        name:
+          type: string
+          description: User's full name
+        email:
+          type: string
+          format: email
+          description: User's email address
+        username:
+          type: string
+          description: Unique username
+        created_at:
+          type: string
+          format: date-time
+          description: Account creation timestamp
+
+paths:
+  /login:
+    post:
+      tags:
+        - Authentication
+      summary: Authenticate user and get tokens
+      description: Login with username and password to obtain access and refresh tokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                  example: john_doe
+                password:
+                  type: string
+                  format: password
+                  example: "********"
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /register:
+    post:
+      tags:
+        - Authentication
+      summary: Create new user account
+      description: Register a new user and receive authentication tokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - username
+                - password
+              properties:
+                name:
+                  type: string
+                  example: John Doe
+                email:
+                  type: string
+                  format: email
+                  example: john@example.com
+                username:
+                  type: string
+                  example: john_doe
+                password:
+                  type: string
+                  format: password
+                  example: "********"
+      responses:
+        '200':
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '400':
+          description: Invalid input or username/email already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /user:
+    get:
+      tags:
+        - User Management
+      summary: Get current user profile
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: User profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: number
+                  status:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/UserProfile'
+
+    put:
+      tags:
+        - User Management
+      summary: Update user profile
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Updated full name
+                email:
+                  type: string
+                  format: email
+                  description: Updated email address
+                username:
+                  type: string
+                  description: Updated username
+                profile_picture:
+                  type: string
+                  format: binary
+                  description: New profile picture (PNG, JPEG, JPG only)
+      responses:
+        '200':
+          description: Profile updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: number
+                  status:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/UserProfile'
+
+  /history:
+    get:
+      tags:
+        - Music History
+      summary: Get user's music history
+      security:
+        - bearerAuth: [ ]
+      description: Retrieve all music listening history entries for the authenticated user
+      responses:
+        '200':
+          description: History retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: number
+                  status:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: number
+                          description: History entry ID
+                        user_id:
+                          type: number
+                          description: User ID associated with the history
+                        mood:
+                          type: string
+                          description: Mood associated with the listening session
+                        created_at:
+                          type: string
+                          format: date-time
+                          description: When the history entry was created
+
+  /history/{id}:
+    get:
+      tags:
+        - Music History
+      summary: Get specific history entry with playlist
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique identifier of the history entry
+          schema:
+            type: number
+      responses:
+        '200':
+          description: History entry found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: number
+                  status:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: number
+                      user_id:
+                        type: number
+                      mood:
+                        type: string
+                      created_at:
+                        type: string
+                        format: date-time
+                      playlist:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: number
+                            history_id:
+                              type: number
+                            name_track:
+                              type: string
+                            path:
+                              type: string
+                            thumbnail:
+                              type: string
