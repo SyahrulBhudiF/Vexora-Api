@@ -2,13 +2,21 @@ openapi: 3.1.0
 info:
   title: Vexora API
   description: |
-    RESTful API specification for Vexora - A User Authentication and Music History Management System
+    RESTful API specification for Vexora - A Mood-Based Music Recommendation System
     
     ## Features
     - User authentication (login, register, refresh token)
     - User profile management
+    - Facial emotion detection
+    - Mood-based music recommendations
     - Music history tracking
     - Playlist management
+    
+    ## Mood Categories
+    - Happy 😊
+    - Sad 😢
+    - Angry 😠
+    - Neutral/Calm 😐
     
     ## Authentication
     The API uses JWT Bearer token authentication. Include the token in the Authorization header:
@@ -40,6 +48,53 @@ components:
         status:
           type: string
           description: Error message
+
+    MoodDetectionResponse:
+      type: object
+      properties:
+        code:
+          type: number
+          description: HTTP status code
+        status:
+          type: string
+          description: Response status message
+        data:
+          type: object
+          properties:
+            detected_mood:
+              type: string
+              enum: [ happy, sad, angry, neutral ]
+              description: Detected emotion from facial expression
+            confidence_score:
+              type: number
+              format: float
+              description: Confidence level of emotion detection (0-1)
+            recommended_tracks:
+              type: array
+              items:
+                type: object
+                properties:
+                  track_id:
+                    type: string
+                    description: Spotify track ID
+                  name:
+                    type: string
+                    description: Track name
+                  artist:
+                    type: string
+                    description: Artist name
+                  preview_url:
+                    type: string
+                    description: 30-second preview URL
+                  spotify_url:
+                    type: string
+                    description: Full track URL on Spotify
+                  image_url:
+                    type: string
+                    description: Track album cover URL
+            playlist_id:
+              type: string
+              description: Generated Spotify playlist ID
 
     TokenResponse:
       type: object
@@ -189,6 +244,12 @@ paths:
                     type: string
                   data:
                     $ref: '#/components/schemas/UserProfile'
+          '401':
+            description: Invalid or expired access token
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
 
     put:
       tags:
@@ -230,6 +291,21 @@ paths:
                     type: string
                   data:
                     $ref: '#/components/schemas/UserProfile'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 400
+                status: "Invalid input format"
+        '401':
+          description: Invalid or expired access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /history:
     get:
@@ -269,6 +345,12 @@ paths:
                           type: string
                           format: date-time
                           description: When the history entry was created
+        '401':
+          description: Invalid or expired access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /history/{id}:
     get:
@@ -323,3 +405,115 @@ paths:
                               type: string
                             thumbnail:
                               type: string
+        '401':
+          description: Invalid or expired access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: History entry not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /mood-detection:
+    post:
+      tags:
+        - Mood Detection
+      summary: Detect mood from facial expression and get music recommendations
+      description: |
+        Upload a selfie image to detect emotional state and receive personalized music recommendations.
+        The system uses CNN for emotion detection and K-means clustering for music matching.
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - user_id
+                - image
+              properties:
+                user_id:
+                  type: number
+                  description: ID of the authenticated user
+                image:
+                  type: string
+                  format: binary
+                  description: Selfie image file (JPEG, PNG)
+                genres:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                      - pop
+                      - rock
+                      - hip-hop
+                      - r-n-b
+                      - classical
+                      - jazz
+                      - electronic
+                      - indie
+                      - metal
+                      - country
+                    description: Preferred music genres for recommendations
+                limit:
+                  type: integer
+                  minimum: 1
+                  maximum: 50
+                  default: 20
+                  description: Maximum number of tracks to recommend
+            encoding:
+              image:
+                contentType:
+                  - image/jpeg
+                  - image/png
+      responses:
+        '200':
+          description: Mood detected and recommendations generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MoodDetectionResponse'
+              example:
+                code: 200
+                status: "success"
+                data:
+                  detected_mood: "happy"
+                  confidence_score: 0.89
+                  recommended_tracks:
+                    - track_id: "spotify:track:123456"
+                      name: "Happy Song"
+                      artist: "Happy Artist"
+                      preview_url: "https://p.scdn.co/mp3-preview/..."
+                      spotify_url: "https://open.spotify.com/track/123456"
+                      image_url: "https://i.scdn.co/image/..."
+                  playlist_id: "spotify:playlist:789xyz"
+        '400':
+          description: Invalid input (bad image format, invalid genres)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 400
+                status: "Invalid image format. Please upload JPEG or PNG file."
+        '401':
+          description: Invalid or expired access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Face detection failed or unclear emotion
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 422
+                status: "No face detected in image or emotion unclear. Please try again with a clearer selfie."
