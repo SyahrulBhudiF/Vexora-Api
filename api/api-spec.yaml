@@ -321,30 +321,32 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  code:
-                    type: number
-                  status:
-                    type: string
-                  data:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: number
-                          description: History entry ID
-                        user_id:
-                          type: number
-                          description: User ID associated with the history
-                        mood:
-                          type: string
-                          description: Mood associated with the listening session
-                        created_at:
-                          type: string
-                          format: date-time
-                          description: When the history entry was created
+                type: array
+                items:
+                  type: object
+                  properties:
+                    code:
+                      type: number
+                    status:
+                      type: string
+                    data:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: number
+                            description: History entry ID
+                          user_id:
+                            type: number
+                            description: User ID associated with the history
+                          mood:
+                            type: string
+                            description: Mood associated with the listening session
+                          created_at:
+                            type: string
+                            format: date-time
+                            description: When the history entry was created
         '401':
           description: Invalid or expired access token
           content:
@@ -484,7 +486,6 @@ paths:
                 status: "success"
                 data:
                   detected_mood: "happy"
-                  confidence_score: 0.89
                   recommended_tracks:
                     - track_id: "spotify:track:123456"
                       name: "Happy Song"

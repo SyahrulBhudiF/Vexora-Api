@@ -136,17 +136,103 @@ PUT /user
 GET /history
 ```
 
+**Response:**
+
+```json
+[
+  {
+    "code": 0,
+    "status": "string",
+    "data": [
+      {
+        "id": 0,
+        "user_id": 0,
+        "mood": "string",
+        "created_at": "2024-11-02T22:55:02.980Z"
+      }
+    ]
+  }
+]
+```
+
 #### Get Specific History
 
 ```http
 GET /history/{id}
 ```
 
+**Response:**
+
+```json
+{
+  "code": 0,
+  "status": "string",
+  "data": {
+    "id": 0,
+    "user_id": 0,
+    "mood": "string",
+    "created_at": "2024-11-02T22:56:14.785Z",
+    "playlist": [
+      {
+        "id": 0,
+        "history_id": 0,
+        "name_track": "string",
+        "path": "string",
+        "thumbnail": "string"
+      }
+    ]
+  }
+}
+```
+
+### Music Recommendation
+
+```http request
+POST /mood-detection
+```
+
+**Request Body:**
+
+```json
+{
+  "user_id": 0,
+  "image": "base64",
+  "genres": [
+    "string",
+    "string"
+  ],
+  "limit": 10
+}
+```
+
+**Response:**
+
+```json
+{
+  "code": 200,
+  "status": "success",
+  "data": {
+    "detected_mood": "happy",
+    "recommended_tracks": [
+      {
+        "track_id": "spotify:track:123456",
+        "name": "Happy Song",
+        "artist": "Happy Artist",
+        "preview_url": "https://p.scdn.co/mp3-preview/...",
+        "spotify_url": "https://open.spotify.com/track/123456",
+        "image_url": "https://i.scdn.co/image/..."
+      }
+    ],
+    "playlist_id": "spotify:playlist:789xyz"
+  }
+}
+```
+
 ## Complete OpenAPI Specification
 
 For detailed API documentation, you can:
 
-1. View our [OpenAPI Specification](./api-spec.yaml)
+1. View our [OpenAPI Specification](./api/api-spec.yaml)
 2. Import our [Postman Collection](./postman-collection.json)
 
 ## Error Responses
