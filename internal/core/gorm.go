@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	user "github.com/SyahrulBhudiF/Vexora-Api/internal/domains/user/entity"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"gorm.io/driver/postgres"
@@ -9,14 +10,13 @@ import (
 	"gorm.io/gorm/logger"
 	"log"
 	"os"
-	"os/user"
 )
 
 func NewDB(viper *viper.Viper) (*gorm.DB, error) {
 	username := viper.GetString("database.user")
 	password := viper.GetString("database.password")
 	host := viper.GetString("database.host")
-	port := viper.GetString("database.port")
+	port := viper.GetInt("database.port")
 	dbname := viper.GetString("database.dbname")
 
 	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s prepareThreshold=0", host, port, username, password, dbname)

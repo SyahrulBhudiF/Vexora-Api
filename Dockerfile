@@ -14,4 +14,4 @@ FROM scratch
 
 COPY --from=builder ["/build/vexora", "/build/config.yaml", "/"]
 
-CMD ["/cody", "-c", "/config.yaml", "serve"]
+CMD ["/vexora", "-c", "/config.yaml", "serve"]
