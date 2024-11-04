@@ -148,6 +148,8 @@ GET /history
         "id": 0,
         "user_id": 0,
         "mood": "string",
+        "playlist_name": "string",
+        "path": "string",
         "created_at": "2024-11-02T22:55:02.980Z"
       }
     ]
@@ -176,9 +178,10 @@ GET /history/{id}
       {
         "id": 0,
         "history_id": 0,
-        "name_track": "string",
+        "music_name": "string",
         "path": "string",
-        "thumbnail": "string"
+        "thumbnail": "string",
+        "artist": "string"
       }
     ]
   }
