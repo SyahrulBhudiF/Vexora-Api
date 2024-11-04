@@ -343,6 +343,12 @@ paths:
                           mood:
                             type: string
                             description: Mood associated with the listening session
+                          playlist_name:
+                            type: string
+                            description: Name of the playlist
+                          path:
+                            type: string
+                            description: URL to the playlist
                           created_at:
                             type: string
                             format: date-time
@@ -389,10 +395,14 @@ paths:
                         type: number
                       mood:
                         type: string
+                      playlist_name:
+                        type: string
+                      path:
+                        type: string
                       created_at:
                         type: string
                         format: date-time
-                      playlist:
+                      music:
                         type: array
                         items:
                           type: object
@@ -401,11 +411,13 @@ paths:
                               type: number
                             history_id:
                               type: number
-                            name_track:
+                            music_name:
                               type: string
                             path:
                               type: string
                             thumbnail:
+                              type: string
+                            artist:
                               type: string
         '401':
           description: Invalid or expired access token
