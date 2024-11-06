@@ -68,7 +68,7 @@ POST /login
   "status": "success",
   "data": {
     "accessToken": "string",
-    "refreshToken": "string"
+    "refresh_token": "string"
   }
 }
 ```
@@ -127,6 +127,30 @@ PUT /user
 - `email`: string
 - `username`: string
 - `profile_picture`: file (PNG, JPEG, JPG)
+
+#### Change Password
+
+```http
+PUT /user/change-password
+```
+
+**Request Body:**
+
+```json
+{
+  "old_password": "string",
+  "new_password": "string"
+}
+```
+
+**Response:**
+
+```json
+{
+  "code": 200,
+  "status": "success"
+}
+```
 
 ### Music History
 

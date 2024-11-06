@@ -2,7 +2,12 @@ package core
 
 import (
 	"fmt"
-	"github.com/SyahrulBhudiF/Vexora-Api/internal/config"
+	"github.com/SyahrulBhudiF/Vexora-Api/internal/delivery/middleware"
+	"github.com/SyahrulBhudiF/Vexora-Api/internal/delivery/routes"
+	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/user"
+	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/user/repository"
+	"github.com/SyahrulBhudiF/Vexora-Api/internal/services"
+	"github.com/SyahrulBhudiF/Vexora-Api/internal/types"
 	"github.com/gofiber/fiber/v2"
 	"github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
@@ -11,18 +16,32 @@ import (
 )
 
 type Vexora struct {
-	Config *viper.Viper
-	DB     *gorm.DB
-	App    *fiber.App
-	Redis  *redis.Client
+	Viper    *viper.Viper
+	DB       *gorm.DB
+	App      *fiber.App
+	Redis    *redis.Client
+	JWT      *services.JWTService
+	ImageKit *services.ImageKitService
 }
 
 func Init(vexora *Vexora) {
-	vexora.Config = config.NewConfig()
+	userRepo := repository.NewUserRepository(vexora.DB)
+	tokenRepo := types.NewRedisRepository(vexora.Redis, "token")
+	userHandler := user.NewUserHandler(userRepo, tokenRepo, vexora.JWT, vexora.ImageKit, vexora.Viper)
+
+	authMiddleware := middleware.NewAuthMiddleware(userRepo, tokenRepo, vexora.JWT)
+
+	route := routes.Route{
+		App:            vexora.App,
+		UserHandler:    userHandler,
+		AuthMiddleware: authMiddleware,
+	}
+
+	route.InitV1()
 }
 
 func (a *Vexora) Start() {
-	err := a.App.Listen(fmt.Sprintf("%s:%s", a.Config.GetString("app.host"), a.Config.GetString("app.port")))
+	err := a.App.Listen(fmt.Sprintf("%s:%s", a.Viper.GetString("app.host"), a.Viper.GetString("app.port")))
 	if err != nil {
 		logrus.Fatal(err)
 	}
