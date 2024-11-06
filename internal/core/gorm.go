@@ -2,7 +2,6 @@ package core
 
 import (
 	"fmt"
-	user "github.com/SyahrulBhudiF/Vexora-Api/internal/domains/user/entity"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"gorm.io/driver/postgres"
@@ -35,10 +34,6 @@ func NewDB(viper *viper.Viper) (*gorm.DB, error) {
 	)
 
 	if err != nil {
-		logrus.Fatal(err)
-	}
-
-	if err := db.AutoMigrate(user.User{}); err != nil {
 		logrus.Fatal(err)
 	}
 

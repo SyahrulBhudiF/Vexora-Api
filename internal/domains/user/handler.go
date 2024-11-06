@@ -10,6 +10,7 @@ import (
 	"github.com/SyahrulBhudiF/Vexora-Api/internal/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/spf13/viper"
+	"time"
 )
 
 type UserHandler struct {
@@ -34,8 +35,9 @@ func (handler *UserHandler) Register(ctx *fiber.Ctx) error {
 	body := ctx.Locals("body").(*RegisterRequest)
 
 	user := entity.User{Username: body.Username}
-	if exists := handler.userRepo.Exists(&user); exists {
-		return helpers.ErrorResponse(ctx, fiber.StatusConflict, true, fmt.Errorf("username has been taken"))
+	email := entity.User{Email: body.Email}
+	if exists := handler.userRepo.Exists(&user) || handler.userRepo.Exists(&email); exists {
+		return helpers.ErrorResponse(ctx, fiber.StatusConflict, true, fmt.Errorf("username or email has been taken"))
 	}
 
 	hashedPassword := utils.HashPassword(body.Password, handler.viper.GetString("app.secret"))
@@ -53,4 +55,33 @@ func (handler *UserHandler) Register(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.JSON(types.WebResponse[entity.User]{Message: "sign up success!", Success: true, ShouldNotify: false, Data: user})
+}
+
+func (handler *UserHandler) Login(ctx *fiber.Ctx) error {
+	body := ctx.Locals("body").(*LoginRequest)
+
+	user := entity.User{Username: body.Username}
+	if err := handler.userRepo.Find(&user); err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusUnauthorized, true, fmt.Errorf("invalid username or password"))
+	}
+
+	if !utils.ComparePassword(user.Password, body.Password, handler.viper.GetString("app.secret")) {
+		return helpers.ErrorResponse(ctx, fiber.StatusUnauthorized, true, fmt.Errorf("invalid username or password"))
+	}
+
+	refreshTokenDuration := time.Duration(handler.viper.GetInt("auth.refresh_token_exp_days")) * time.Hour * 24
+	refreshToken, err := handler.jwtService.GenerateRefreshToken(user, refreshTokenDuration)
+	if err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to generate refresh token"))
+	}
+
+	accessTokenDuration := time.Duration(handler.viper.GetInt("auth.access_token_exp_mins")) * time.Minute
+	accessToken, err := handler.jwtService.GenerateAccessToken(user, accessTokenDuration)
+	if err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to generate access token"))
+	}
+
+	token := entity.Token{RefreshToken: refreshToken, AccessToken: accessToken}
+
+	return ctx.JSON(types.WebResponse[entity.Token]{Message: "sign in success!", Success: true, ShouldNotify: false, Data: token})
 }
