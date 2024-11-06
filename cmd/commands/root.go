@@ -48,10 +48,10 @@ func initApp() {
 	}
 
 	VexoraApp = &core.Vexora{
-		Config: viper,
-		App:    app,
-		DB:     db,
-		Redis:  rds,
+		Viper: viper,
+		App:   app,
+		DB:    db,
+		Redis: rds,
 	}
 	core.Init(VexoraApp)
 }

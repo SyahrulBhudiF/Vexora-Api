@@ -4,7 +4,7 @@ import "github.com/SyahrulBhudiF/Vexora-Api/internal/types"
 
 type User struct {
 	types.Entity
-	Username       string `json:"username"gorm:"unique;not null"`
+	Username       string `json:"username" gorm:"unique;not null"`
 	Name           string `json:"name"`
 	Email          string `json:"email"`
 	Password       string `json:"password"`

@@ -111,7 +111,7 @@ components:
             accessToken:
               type: string
               description: JWT access token for API authentication
-            refreshToken:
+            refresh_token:
               type: string
               description: Token used to obtain new access tokens
 
@@ -300,6 +300,51 @@ paths:
               example:
                 code: 400
                 status: "Invalid input format"
+        '401':
+          description: Invalid or expired access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /user/change-password:
+    put:
+      tags:
+        - User Management
+      summary: Change user password
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - current_password
+                - new_password
+              properties:
+                current_password:
+                  type: string
+                  format: password
+                  description: Current password
+                new_password:
+                  type: string
+                  format: password
+                  description: New password
+      responses:
+        '200':
+          description: Password changed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '400':
+          description: Invalid input or password mismatch
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '401':
           description: Invalid or expired access token
           content:
