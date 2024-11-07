@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.0.0
 info:
   title: Vexora API
   description: |
@@ -39,81 +39,15 @@ components:
       description: JWT token obtained from login or register endpoints
 
   schemas:
-    Error:
+    TokenData:
       type: object
       properties:
-        code:
-          type: number
-          description: HTTP status code
-        status:
+        accessToken:
           type: string
-          description: Error message
-
-    MoodDetectionResponse:
-      type: object
-      properties:
-        code:
-          type: number
-          description: HTTP status code
-        status:
+          description: JWT access token for API authentication
+        refreshToken:
           type: string
-          description: Response status message
-        data:
-          type: object
-          properties:
-            detected_mood:
-              type: string
-              enum: [ happy, sad, angry, neutral ]
-              description: Detected emotion from facial expression
-            confidence_score:
-              type: number
-              format: float
-              description: Confidence level of emotion detection (0-1)
-            recommended_tracks:
-              type: array
-              items:
-                type: object
-                properties:
-                  track_id:
-                    type: string
-                    description: Spotify track ID
-                  name:
-                    type: string
-                    description: Track name
-                  artist:
-                    type: string
-                    description: Artist name
-                  preview_url:
-                    type: string
-                    description: 30-second preview URL
-                  spotify_url:
-                    type: string
-                    description: Full track URL on Spotify
-                  image_url:
-                    type: string
-                    description: Track album cover URL
-            playlist_id:
-              type: string
-              description: Generated Spotify playlist ID
-
-    TokenResponse:
-      type: object
-      properties:
-        code:
-          type: number
-          description: HTTP status code
-        status:
-          type: string
-          description: Response status message
-        data:
-          type: object
-          properties:
-            accessToken:
-              type: string
-              description: JWT access token for API authentication
-            refresh_token:
-              type: string
-              description: Token used to obtain new access tokens
+          description: Token used to obtain new access tokens
 
     UserProfile:
       type: object
@@ -138,6 +72,81 @@ components:
           type: string
           format: date-time
           description: Account creation timestamp
+
+    Music:
+      type: object
+      properties:
+        id:
+          type: number
+        history_id:
+          type: number
+        music_name:
+          type: string
+        path:
+          type: string
+        thumbnail:
+          type: string
+        artist:
+          type: string
+
+    HistoryEntry:
+      type: object
+      properties:
+        id:
+          type: number
+          description: History entry ID
+        user_id:
+          type: number
+          description: User ID associated with the history
+        mood:
+          type: string
+          description: Mood associated with the listening session
+        playlist_name:
+          type: string
+          description: Name of the playlist
+        path:
+          type: string
+          description: URL to the playlist
+        created_at:
+          type: string
+          format: date-time
+          description: When the history entry was created
+        music:
+          type: array
+          items:
+            $ref: '#/components/schemas/Music'
+
+    RecommendedTrack:
+      type: object
+      properties:
+        track_id:
+          type: string
+        name:
+          type: string
+        artist:
+          type: string
+        preview_url:
+          type: string
+        spotify_url:
+          type: string
+        image_url:
+          type: string
+
+    MoodDetectionData:
+      type: object
+      properties:
+        detected_mood:
+          type: string
+          enum: [ happy, sad, angry, neutral ]
+        confidence_score:
+          type: number
+          format: float
+        recommended_tracks:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecommendedTrack'
+        playlist_id:
+          type: string
 
 paths:
   /login:
@@ -169,13 +178,37 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TokenResponse'
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  shouldNotify:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Login successful"
+                  data:
+                    $ref: '#/components/schemas/TokenData'
         '401':
           description: Invalid credentials
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  shouldNotify:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Invalid username or password"
+                  data:
+                    type: null
 
   /register:
     post:
@@ -215,13 +248,37 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TokenResponse'
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  shouldNotify:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Registration successful"
+                  data:
+                    $ref: '#/components/schemas/TokenData'
         '400':
           description: Invalid input or username/email already exists
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  shouldNotify:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Username or email already exists"
+                  data:
+                    type: null
 
   /user:
     get:
@@ -238,18 +295,35 @@ paths:
               schema:
                 type: object
                 properties:
-                  code:
-                    type: number
-                  status:
+                  success:
+                    type: boolean
+                    example: true
+                  shouldNotify:
+                    type: boolean
+                    example: false
+                  message:
                     type: string
+                    example: "User profile retrieved successfully"
                   data:
                     $ref: '#/components/schemas/UserProfile'
-          '401':
-            description: Invalid or expired access token
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Error'
+        '401':
+          description: Invalid or expired access token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  shouldNotify:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Invalid or expired token"
+                  data:
+                    type: null
 
     put:
       tags:
@@ -285,10 +359,15 @@ paths:
               schema:
                 type: object
                 properties:
-                  code:
-                    type: number
-                  status:
+                  success:
+                    type: boolean
+                    example: true
+                  shouldNotify:
+                    type: boolean
+                    example: true
+                  message:
                     type: string
+                    example: "Profile updated successfully"
                   data:
                     $ref: '#/components/schemas/UserProfile'
         '400':
@@ -296,16 +375,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 400
-                status: "Invalid input format"
-        '401':
-          description: Invalid or expired access token
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  shouldNotify:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Invalid input format"
+                  data:
+                    type: null
 
   /user/change-password:
     put:
@@ -338,19 +420,37 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  shouldNotify:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Password changed successfully"
+                  data:
+                    type: null
         '400':
           description: Invalid input or password mismatch
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '401':
-          description: Invalid or expired access token
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  shouldNotify:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Current password is incorrect"
+                  data:
+                    type: null
 
   /history:
     get:
@@ -366,44 +466,21 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    code:
-                      type: number
-                    status:
-                      type: string
-                    data:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          id:
-                            type: number
-                            description: History entry ID
-                          user_id:
-                            type: number
-                            description: User ID associated with the history
-                          mood:
-                            type: string
-                            description: Mood associated with the listening session
-                          playlist_name:
-                            type: string
-                            description: Name of the playlist
-                          path:
-                            type: string
-                            description: URL to the playlist
-                          created_at:
-                            type: string
-                            format: date-time
-                            description: When the history entry was created
-        '401':
-          description: Invalid or expired access token
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  shouldNotify:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "History retrieved successfully"
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/HistoryEntry'
 
   /history/{id}:
     get:
@@ -427,55 +504,35 @@ paths:
               schema:
                 type: object
                 properties:
-                  code:
-                    type: number
-                  status:
+                  success:
+                    type: boolean
+                    example: true
+                  shouldNotify:
+                    type: boolean
+                    example: false
+                  message:
                     type: string
+                    example: "History entry found"
                   data:
-                    type: object
-                    properties:
-                      id:
-                        type: number
-                      user_id:
-                        type: number
-                      mood:
-                        type: string
-                      playlist_name:
-                        type: string
-                      path:
-                        type: string
-                      created_at:
-                        type: string
-                        format: date-time
-                      music:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            id:
-                              type: number
-                            history_id:
-                              type: number
-                            music_name:
-                              type: string
-                            path:
-                              type: string
-                            thumbnail:
-                              type: string
-                            artist:
-                              type: string
-        '401':
-          description: Invalid or expired access token
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+                    $ref: '#/components/schemas/HistoryEntry'
         '404':
           description: History entry not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  shouldNotify:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "History entry not found"
+                  data:
+                    type: null
 
   /mood-detection:
     post:
@@ -537,41 +594,34 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MoodDetectionResponse'
-              example:
-                code: 200
-                status: "success"
-                data:
-                  detected_mood: "happy"
-                  recommended_tracks:
-                    - track_id: "spotify:track:123456"
-                      name: "Happy Song"
-                      artist: "Happy Artist"
-                      preview_url: "https://p.scdn.co/mp3-preview/..."
-                      spotify_url: "https://open.spotify.com/track/123456"
-                      image_url: "https://i.scdn.co/image/..."
-                  playlist_id: "spotify:playlist:789xyz"
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  shouldNotify:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Mood detected successfully"
+                  data:
+                    $ref: '#/components/schemas/MoodDetectionData'
         '400':
           description: Invalid input (bad image format, invalid genres)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 400
-                status: "Invalid image format. Please upload JPEG or PNG file."
-        '401':
-          description: Invalid or expired access token
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '422':
-          description: Face detection failed or unclear emotion
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 422
-                status: "No face detected in image or emotion unclear. Please try again with a clearer selfie."
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  shouldNotify:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Invalid image format"
+                  data:
+                    type: null
