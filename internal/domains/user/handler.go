@@ -85,3 +85,38 @@ func (handler *UserHandler) Login(ctx *fiber.Ctx) error {
 
 	return ctx.JSON(types.WebResponse[entity.Token]{Message: "sign in success!", Success: true, ShouldNotify: false, Data: token})
 }
+
+func (handler *UserHandler) Logout(ctx *fiber.Ctx) error {
+	body := ctx.Locals("body").(*LogoutRequest)
+	rawAccessToken := ctx.Locals("accessToken").(string)
+
+	refreshToken, err := handler.jwtService.ValidateRefreshToken(body.RefreshToken)
+	if err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusUnauthorized, true, fmt.Errorf("invalid refresh token"))
+	}
+
+	accessToken, err := handler.jwtService.ValidateAccessToken(rawAccessToken)
+	if err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusUnauthorized, true, fmt.Errorf("invalid access token"))
+	}
+
+	if refreshToken.Subject != accessToken.UUID.String() {
+		return helpers.ErrorResponse(ctx, fiber.StatusUnauthorized, true, fmt.Errorf("permission denied"))
+	}
+
+	isBlacklisted, err := handler.tokenRepo.Exists(body.RefreshToken)
+	if err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to logout"))
+	}
+
+	if isBlacklisted {
+		return helpers.ErrorResponse(ctx, fiber.StatusUnauthorized, true, fmt.Errorf("refresh token has been blacklisted"))
+	}
+
+	refreshTokenBlacklistDuration := time.Until(time.Unix(refreshToken.ExpiresAt, 0))
+	if err := handler.tokenRepo.Set(body.RefreshToken, nil, refreshTokenBlacklistDuration); err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to blacklist token"))
+	}
+
+	return helpers.SuccessResponse[any](ctx, fiber.StatusOK, false, "sign out success!", nil)
+}
