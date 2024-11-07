@@ -27,7 +27,6 @@ func NewAuthMiddleware(userRepository *userRepositories.UserRepository, tokenRep
 }
 
 func (m *AuthMiddleware) EnsureAuthenticated(ctx *fiber.Ctx) error {
-
 	var err error
 
 	// parse request header

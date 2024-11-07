@@ -120,3 +120,9 @@ func (handler *UserHandler) Logout(ctx *fiber.Ctx) error {
 
 	return helpers.SuccessResponse[any](ctx, fiber.StatusOK, false, "sign out success!", nil)
 }
+
+func (handler *UserHandler) GetProfile(ctx *fiber.Ctx) error {
+	user := ctx.Locals("user").(*entity.User)
+
+	return helpers.SuccessResponse(ctx, fiber.StatusOK, false, "get profile success!", user)
+}
