@@ -3,6 +3,7 @@ package commands
 import (
 	"github.com/SyahrulBhudiF/Vexora-Api/internal/config"
 	"github.com/SyahrulBhudiF/Vexora-Api/internal/core"
+	"github.com/SyahrulBhudiF/Vexora-Api/internal/services"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -47,11 +48,17 @@ func initApp() {
 		logrus.Fatal("unable to initialize redis: %s", err.Error())
 	}
 
+	jwt := services.NewJWTService(viper.GetString("app.secret"))
+
+	imageKit := services.NewImageKitService(viper.GetString("imagekit.private_key"), viper.GetString("imagekit.public_key"), viper.GetString("imagekit.url_endpoint"))
+
 	VexoraApp = &core.Vexora{
-		Viper: viper,
-		App:   app,
-		DB:    db,
-		Redis: rds,
+		Viper:    viper,
+		App:      app,
+		DB:       db,
+		Redis:    rds,
+		JWT:      jwt,
+		ImageKit: imageKit,
 	}
 	core.Init(VexoraApp)
 }
