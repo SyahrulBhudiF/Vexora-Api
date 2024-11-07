@@ -64,5 +64,4 @@ func (m *AuthMiddleware) EnsureAuthenticated(ctx *fiber.Ctx) error {
 	ctx.Locals("user", &user)
 
 	return ctx.Next()
-
 }

@@ -1,6 +1,7 @@
 package user
 
 import (
+	"encoding/base64"
 	"fmt"
 	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/user/entity"
 	userRepositories "github.com/SyahrulBhudiF/Vexora-Api/internal/domains/user/repository"
@@ -10,6 +11,7 @@ import (
 	"github.com/SyahrulBhudiF/Vexora-Api/internal/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/spf13/viper"
+	"io"
 	"time"
 )
 
@@ -47,6 +49,7 @@ func (handler *UserHandler) Register(ctx *fiber.Ctx) error {
 		body.Name,
 		body.Email,
 		hashedPassword,
+		"",
 		"",
 	)
 
@@ -125,4 +128,64 @@ func (handler *UserHandler) GetProfile(ctx *fiber.Ctx) error {
 	user := ctx.Locals("user").(*entity.User)
 
 	return helpers.SuccessResponse(ctx, fiber.StatusOK, false, "get profile success!", user)
+}
+
+func (handler *UserHandler) UpdateProfile(ctx *fiber.Ctx) error {
+	body := ctx.Locals("body").(*UpdateProfileRequest)
+	user := ctx.Locals("user").(*entity.User)
+
+	user.Name = body.Name
+	user.Username = body.Username
+	user.Email = body.Email
+
+	if err := handler.userRepo.Update(user); err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to update profile"))
+	}
+
+	return ctx.JSON(types.WebResponse[any]{Message: "update profile success!", Success: true, ShouldNotify: false})
+}
+
+func (handler *UserHandler) UploadProfilePicture(ctx *fiber.Ctx) error {
+	file, err := ctx.FormFile("image")
+	user := ctx.Locals("user").(*entity.User)
+
+	if err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusBadRequest, true, fmt.Errorf("failed to get image"))
+	}
+
+	file.Filename = fmt.Sprintf("%s-%s", ctx.Locals("user").(*entity.User).UUID.String(), file.Filename)
+
+	image, err := file.Open()
+
+	if err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to open image"))
+	}
+
+	defer image.Close()
+
+	imageBuff, err := io.ReadAll(image)
+
+	if err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to read image"))
+	}
+
+	imageKitRes, err := handler.imageKitService.UploadImage(base64.StdEncoding.EncodeToString(imageBuff), "profiles", file.Filename)
+
+	if err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusBadRequest, true, fmt.Errorf("failed to upload image, %v", err))
+	}
+
+	if user.FileId != "" {
+		if err := handler.imageKitService.DeleteImage(user.FileId); err != nil {
+			return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to delete old image"))
+		}
+	}
+
+	user.ProfilePicture = imageKitRes.Data.Url
+	user.FileId = imageKitRes.Data.FileId
+	if err := handler.userRepo.Update(user); err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to update profile"))
+	}
+
+	return helpers.SuccessResponse[any](ctx, fiber.StatusOK, false, "upload image success!", nil)
 }
