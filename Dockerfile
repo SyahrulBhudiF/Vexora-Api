@@ -12,6 +12,12 @@ RUN go build cmd/vexora/vexora.go
 
 FROM scratch
 
+# Copy the ca-certificates from the builder stage
+COPY --from=builder /etc/ssl/certs /etc/ssl/certs
+
+# Optional: Copy host certificates (if required)
+# COPY /etc/ssl/certs /etc/ssl/certs
+
 COPY --from=builder ["/build/vexora", "/build/config.yaml", "/"]
 
 CMD ["/vexora", "-c", "/config.yaml", "serve"]

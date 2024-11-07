@@ -44,7 +44,7 @@ func (service *ImageKitService) isValidImage(imageBuff []byte) error {
 	return fmt.Errorf("invalid image mime type: %s", mime)
 }
 
-func (service *ImageKitService) UploadImage(image []byte, folderPath string, fileName string) (*uploader.UploadResponse, error) {
+func (service *ImageKitService) UploadImage(image string, folderPath string, fileName string) (*uploader.UploadResponse, error) {
 	uploadResponse, err := service.imageKit.Uploader.Upload(
 		service.ctx,
 		image,
@@ -61,4 +61,14 @@ func (service *ImageKitService) UploadImage(image []byte, folderPath string, fil
 	}
 
 	return uploadResponse, nil
+}
+
+func (service *ImageKitService) DeleteImage(imageId string) error {
+	_, err := service.imageKit.Media.DeleteFile(service.ctx, imageId)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

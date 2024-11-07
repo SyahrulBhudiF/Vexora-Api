@@ -27,7 +27,6 @@ func NewAuthMiddleware(userRepository *userRepositories.UserRepository, tokenRep
 }
 
 func (m *AuthMiddleware) EnsureAuthenticated(ctx *fiber.Ctx) error {
-
 	var err error
 
 	// parse request header
@@ -65,5 +64,4 @@ func (m *AuthMiddleware) EnsureAuthenticated(ctx *fiber.Ctx) error {
 	ctx.Locals("user", &user)
 
 	return ctx.Next()
-
 }

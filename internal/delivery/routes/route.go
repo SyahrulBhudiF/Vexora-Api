@@ -32,4 +32,8 @@ func (r *Route) InitializeUserRoutes(router fiber.Router) {
 	router.Post("/register", middleware.EnsureJsonValidRequest[user.RegisterRequest], r.UserHandler.Register)
 	router.Post("/login", middleware.EnsureJsonValidRequest[user.LoginRequest], r.UserHandler.Login)
 	router.Post("/logout", r.AuthMiddleware.EnsureAuthenticated, middleware.EnsureJsonValidRequest[user.LogoutRequest], r.UserHandler.Logout)
+
+	router.Get("/user", r.AuthMiddleware.EnsureAuthenticated, r.UserHandler.GetProfile)
+	router.Put("/user", r.AuthMiddleware.EnsureAuthenticated, middleware.EnsureJsonValidRequest[user.UpdateProfileRequest], r.UserHandler.UpdateProfile)
+	router.Put("/user/profile-picture", r.AuthMiddleware.EnsureAuthenticated, r.UserHandler.UploadProfilePicture)
 }

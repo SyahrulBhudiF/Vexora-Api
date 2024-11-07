@@ -114,6 +114,7 @@ GET /user
   "data": {
     "id": 1,
     "profile_picture": "string",
+    "file_id": "string",
     "name": "string",
     "email": "string",
     "username": "string",
@@ -145,6 +146,7 @@ PUT /user
   "data": {
     "id": 1,
     "profile_picture": "string",
+    "file_id": "string",
     "name": "string",
     "email": "string",
     "username": "string",

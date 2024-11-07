@@ -58,6 +58,9 @@ components:
         profile_picture:
           type: string
           description: URL to user's profile picture
+        file_id:
+          type: string
+          description: ImageKit file ID
         name:
           type: string
           description: User's full name
