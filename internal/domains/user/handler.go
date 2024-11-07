@@ -134,9 +134,11 @@ func (handler *UserHandler) UpdateProfile(ctx *fiber.Ctx) error {
 	body := ctx.Locals("body").(*UpdateProfileRequest)
 	user := ctx.Locals("user").(*entity.User)
 
-	user.Name = body.Name
-	user.Username = body.Username
-	user.Email = body.Email
+	if err := helpers.UpdateEntity(ctx, body, user); err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to update profile"))
+	}
+
+	fmt.Println(user)
 
 	if err := handler.userRepo.Update(user); err != nil {
 		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to update profile"))
@@ -188,4 +190,22 @@ func (handler *UserHandler) UploadProfilePicture(ctx *fiber.Ctx) error {
 	}
 
 	return helpers.SuccessResponse[any](ctx, fiber.StatusOK, false, "upload image success!", nil)
+}
+
+func (handler *UserHandler) ChangePassword(ctx *fiber.Ctx) error {
+	body := ctx.Locals("body").(*ChangePasswordRequest)
+	user := ctx.Locals("user").(*entity.User)
+
+	if !utils.ComparePassword(user.Password, body.PreviousPassword, handler.viper.GetString("app.secret")) {
+		return helpers.ErrorResponse(ctx, fiber.StatusUnauthorized, true, fmt.Errorf("invalid old password"))
+	}
+
+	hashedPassword := utils.HashPassword(body.NewPassword, handler.viper.GetString("app.secret"))
+	user.Password = hashedPassword
+
+	if err := handler.userRepo.Update(user); err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to change password"))
+	}
+
+	return helpers.SuccessResponse[any](ctx, fiber.StatusOK, false, "change password success!", nil)
 }
