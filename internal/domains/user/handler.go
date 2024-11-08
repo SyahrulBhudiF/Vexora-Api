@@ -10,6 +10,7 @@ import (
 	"github.com/SyahrulBhudiF/Vexora-Api/internal/types"
 	"github.com/SyahrulBhudiF/Vexora-Api/internal/utils"
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"github.com/spf13/viper"
 	"io"
 	"time"
@@ -208,4 +209,47 @@ func (handler *UserHandler) ChangePassword(ctx *fiber.Ctx) error {
 	}
 
 	return helpers.SuccessResponse[any](ctx, fiber.StatusOK, false, "change password success!", nil)
+}
+
+func (handler *UserHandler) RefreshToken(ctx *fiber.Ctx) error {
+	body := ctx.Locals("body").(*RefreshTokenRequest)
+
+	refreshClaims, err := handler.jwtService.ValidateRefreshToken(body.RefreshToken)
+	if err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusUnauthorized, true, fmt.Errorf("invalid refresh token"))
+	}
+
+	isBlacklisted, err := handler.tokenRepo.Exists(body.RefreshToken)
+	if err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to check token blacklist"))
+	}
+
+	if isBlacklisted {
+		return helpers.ErrorResponse(ctx, fiber.StatusUnauthorized, true, fmt.Errorf("token has been blacklisted"))
+	}
+
+	userUUID, err := uuid.Parse(refreshClaims.Subject)
+
+	if err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to parse user uuid"))
+	}
+
+	user := entity.User{
+		Entity: types.Entity{UUID: userUUID},
+	}
+
+	if err := handler.userRepo.Find(&user); err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusUnauthorized, true, fmt.Errorf("user not found"))
+	}
+
+	accessTokenDuration := time.Duration(handler.viper.GetInt("auth.access_token_exp_mins")) * time.Minute
+	accessToken, err := handler.jwtService.GenerateAccessToken(user, accessTokenDuration)
+
+	if err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to generate access token"))
+	}
+
+	token := entity.Token{RefreshToken: body.RefreshToken, AccessToken: accessToken}
+
+	return helpers.SuccessResponse(ctx, fiber.StatusOK, false, "refresh token success!", token)
 }
