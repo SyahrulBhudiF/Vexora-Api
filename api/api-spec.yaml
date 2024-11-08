@@ -42,10 +42,10 @@ components:
     TokenData:
       type: object
       properties:
-        accessToken:
+        access_token:
           type: string
           description: JWT access token for API authentication
-        refreshToken:
+        refresh_token:
           type: string
           description: Token used to obtain new access tokens
 
@@ -191,7 +191,7 @@ paths:
                     example: true
                   message:
                     type: string
-                    example: "Login successful"
+                    example: "login success!"
                   data:
                     $ref: '#/components/schemas/TokenData'
         '401':
@@ -209,7 +209,7 @@ paths:
                     example: true
                   message:
                     type: string
-                    example: "Invalid username or password"
+                    example: "invalid username or password"
                   data:
                     type: null
 
@@ -218,7 +218,7 @@ paths:
       tags:
         - Authentication
       summary: Create new user account
-      description: Register a new user and receive authentication tokens
+      description: Register a new user
       requestBody:
         required: true
         content:
@@ -261,9 +261,9 @@ paths:
                     example: true
                   message:
                     type: string
-                    example: "Registration successful"
+                    example: "register success!"
                   data:
-                    $ref: '#/components/schemas/TokenData'
+                    $ref: '#/components/schemas/UserProfile'
         '400':
           description: Invalid input or username/email already exists
           content:
@@ -279,7 +279,105 @@ paths:
                     example: true
                   message:
                     type: string
-                    example: "Username or email already exists"
+                    example: "username or email already exists"
+                  data:
+                    type: null
+
+  /logout:
+    post:
+      tags:
+        - Authentication
+      summary: Invalidate access and refresh tokens
+      description: Logout and invalidate the access and refresh tokens
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refresh_token
+              properties:
+                refresh_token:
+                  type: string
+                  description: refresh token obtained from login
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  shouldNotify:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "logout success!"
+                  data:
+                    type: null
+
+  /refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh access token
+      description: |
+        Use the refresh token to obtain a new access token without re-authenticating.
+        The refresh token is valid for 30 days.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refresh_token
+              properties:
+                refresh_token:
+                  type: string
+                  description: Refresh token obtained from login or register
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  shouldNotify:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "refresh token success!"
+                  data:
+                    $ref: '#/components/schemas/TokenData'
+        '401':
+          description: Invalid or expired refresh token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  shouldNotify:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "invalid or expired refresh token"
                   data:
                     type: null
 
@@ -306,7 +404,7 @@ paths:
                     example: false
                   message:
                     type: string
-                    example: "User profile retrieved successfully"
+                    example: "get profile success!"
                   data:
                     $ref: '#/components/schemas/UserProfile'
         '401':
@@ -324,7 +422,7 @@ paths:
                     example: true
                   message:
                     type: string
-                    example: "Invalid or expired token"
+                    example: "invalid or expired token"
                   data:
                     type: null
 
@@ -370,7 +468,7 @@ paths:
                     example: true
                   message:
                     type: string
-                    example: "Profile updated successfully"
+                    example: "update profile success!"
                   data:
                     $ref: '#/components/schemas/UserProfile'
         '400':
@@ -388,7 +486,7 @@ paths:
                     example: true
                   message:
                     type: string
-                    example: "Invalid input format"
+                    example: "invalid request ...args"
                   data:
                     type: null
 
@@ -433,7 +531,7 @@ paths:
                     example: true
                   message:
                     type: string
-                    example: "Password changed successfully"
+                    example: "change password success!"
                   data:
                     type: null
         '400':
@@ -451,7 +549,62 @@ paths:
                     example: true
                   message:
                     type: string
-                    example: "Current password is incorrect"
+                    example: "current password is incorrect"
+                  data:
+                    type: null
+
+  /user/profile-picture:
+    put:
+      tags:
+        - User Management
+      summary: Update user profile picture
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                profile_picture:
+                  type: string
+                  format: binary
+                  description: New profile picture (PNG, JPEG, JPG only)
+      responses:
+        '200':
+          description: Profile picture updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  shouldNotify:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "upload image success!"
+                  data:
+                    type: null
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  shouldNotify:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "invalid request ...args"
                   data:
                     type: null
 
@@ -479,7 +632,7 @@ paths:
                     example: false
                   message:
                     type: string
-                    example: "History retrieved successfully"
+                    example: "history retrieved successfully!"
                   data:
                     type: array
                     items:
@@ -515,7 +668,7 @@ paths:
                     example: false
                   message:
                     type: string
-                    example: "History entry found"
+                    example: "history entry found!"
                   data:
                     $ref: '#/components/schemas/HistoryEntry'
         '404':
@@ -533,7 +686,7 @@ paths:
                     example: true
                   message:
                     type: string
-                    example: "History entry not found"
+                    example: "history entry not found!"
                   data:
                     type: null
 
@@ -607,7 +760,7 @@ paths:
                     example: false
                   message:
                     type: string
-                    example: "Mood detected successfully"
+                    example: "mood detected successfully!"
                   data:
                     $ref: '#/components/schemas/MoodDetectionData'
         '400':
@@ -625,6 +778,6 @@ paths:
                     example: true
                   message:
                     type: string
-                    example: "Invalid image format"
+                    example: "invalid request ...args"
                   data:
                     type: null

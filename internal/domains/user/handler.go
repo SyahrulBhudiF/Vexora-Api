@@ -55,10 +55,10 @@ func (handler *UserHandler) Register(ctx *fiber.Ctx) error {
 	)
 
 	if err := handler.userRepo.Create(&user); err != nil {
-		return helpers.ErrorResponse(ctx, fiber.StatusConflict, true, fmt.Errorf("sign up failed"))
+		return helpers.ErrorResponse(ctx, fiber.StatusConflict, true, fmt.Errorf("register failed"))
 	}
 
-	return ctx.JSON(types.WebResponse[entity.User]{Message: "sign up success!", Success: true, ShouldNotify: false, Data: user})
+	return ctx.JSON(types.WebResponse[entity.User]{Message: "register success!", Success: true, ShouldNotify: false, Data: user})
 }
 
 func (handler *UserHandler) Login(ctx *fiber.Ctx) error {
@@ -87,7 +87,7 @@ func (handler *UserHandler) Login(ctx *fiber.Ctx) error {
 
 	token := entity.Token{RefreshToken: refreshToken, AccessToken: accessToken}
 
-	return ctx.JSON(types.WebResponse[entity.Token]{Message: "sign in success!", Success: true, ShouldNotify: false, Data: token})
+	return ctx.JSON(types.WebResponse[entity.Token]{Message: "login success!", Success: true, ShouldNotify: false, Data: token})
 }
 
 func (handler *UserHandler) Logout(ctx *fiber.Ctx) error {
