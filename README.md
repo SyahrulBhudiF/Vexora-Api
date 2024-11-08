@@ -1,282 +1,417 @@
-# Vexora API Documentation
+# Vexora API
 
-## Overview
+Vexora is a mood-based music recommendation system that uses facial emotion detection to suggest personalized music playlists. The system leverages CNN for emotion detection and K-means clustering for music matching.
 
-Vexora is a mobile application that provides personalized Spotify music recommendations based on facial emotion
-recognition. The application uses:
+## 🎯 Features
 
-- Convolutional Neural Network (CNN) for facial emotion detection
-- K-means clustering for music mood classification
-- Spotify API integration for music recommendations
+- 👤 User authentication and profile management
+- 😊 Facial emotion detection using CNN
+- 🎵 Mood-based music recommendations
+- 📝 Music history tracking
+- 🎼 Playlist management
 
-### Key Features
+## 🎭 Supported Mood Categories
 
-- **Facial Emotion Recognition**: Detects user's mood through facial expressions using CNN, categorizing emotions into:
-    - Happy 😊
-    - Sad 😢
-    - Angry 😠
-    - Neutral/Calm 😐
+- Happy 😊
+- Sad 😢
+- Angry 😠
+- Neutral/Calm 😐
 
-- **Intelligent Music Recommendation**:
-    - Utilizes K-means clustering to categorize Spotify tracks based on audio features
-    - Matches detected emotions with appropriate music clusters
-    - Provides personalized playlist recommendations based on current mood
+## 🚀 Getting Started
 
-- **User Management**:
-    - Secure authentication system
-    - Personal history tracking
-    - Profile customization
-
-## Base URL
-
+### Base URL
 ```
 http://localhost:5555/api/v1
 ```
 
-## Authentication
-
-All API endpoints except `/login` and `/register` require JWT Bearer token authentication.
-
-```http
+### Authentication
+The API uses JWT Bearer token authentication. Include your token in the Authorization header:
+```
 Authorization: Bearer <your_token>
 ```
 
-## API Endpoints
+## 📋 API Endpoints
 
 ### Authentication
 
-#### Login
-
-```http
-POST /login
-```
-
-**Request Body:**
-
-```json
-{
-  "username": "string",
-  "password": "string"
-}
-```
-
-**Response:**
-
-```json
-{
-  "code": 200,
-  "status": "success",
-  "data": {
-    "accessToken": "string",
-    "refresh_token": "string"
-  }
-}
-```
-
-#### Register
-
+#### 1. Register New User
 ```http
 POST /register
 ```
 
 **Request Body:**
-
 ```json
 {
-  "name": "string",
-  "email": "string",
-  "username": "string",
-  "password": "string"
+  "name": "John Doe",
+  "email": "john@example.com",
+  "username": "john_doe",
+  "password": "********"
 }
 ```
 
-### User Management
-
-#### Get User Profile
-
-```http
-GET /user
-```
-
-**Response:**
-
+**Success Response (200):**
 ```json
 {
-  "code": 200,
-  "status": "success",
+  "success": true,
+  "shouldNotify": true,
+  "message": "register success!",
   "data": {
     "id": 1,
-    "profile_picture": "string",
-    "name": "string",
-    "email": "string",
-    "username": "string",
+    "profile_picture": "https://example.com/default.jpg",
+    "file_id": "abc123",
+    "name": "John Doe",
+    "email": "john@example.com",
+    "username": "john_doe",
     "created_at": "2024-01-01T00:00:00Z"
   }
 }
 ```
 
-#### Update User Profile
+**Error Response (400):**
+```json
+{
+  "success": false,
+  "shouldNotify": true,
+  "message": "username or email already exists",
+  "data": null
+}
+```
 
+#### 2. Login
+```http
+POST /login
+```
+
+**Request Body:**
+```json
+{
+  "username": "john_doe",
+  "password": "********"
+}
+```
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "shouldNotify": true,
+  "message": "login success!",
+  "data": {
+    "access_token": "eyJhbGciOiJIUzI1NiIs...",
+    "refresh_token": "eyJhbGciOiJIUzI1NiIs..."
+  }
+}
+```
+
+**Error Response (401):**
+```json
+{
+  "success": false,
+  "shouldNotify": true,
+  "message": "invalid username or password",
+  "data": null
+}
+```
+
+#### 3. Logout
+```http
+POST /logout
+```
+
+**Request Body:**
+```json
+{
+  "refresh_token": "eyJhbGciOiJIUzI1NiIs..."
+}
+```
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "shouldNotify": false,
+  "message": "logout success!",
+  "data": null
+}
+```
+
+#### 4. Refresh Token
+```http
+POST /refresh
+```
+
+**Request Body:**
+```json
+{
+  "refresh_token": "eyJhbGciOiJIUzI1NiIs..."
+}
+```
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "shouldNotify": false,
+  "message": "refresh token success!",
+  "data": {
+    "access_token": "eyJhbGciOiJIUzI1NiIs...",
+    "refresh_token": "eyJhbGciOiJIUzI1NiIs..."
+  }
+}
+```
+
+**Error Response (401):**
+```json
+{
+  "success": false,
+  "shouldNotify": true,
+  "message": "invalid or expired refresh token",
+  "data": null
+}
+```
+
+### User Management
+
+#### 1. Get User Profile
+```http
+GET /user
+```
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "shouldNotify": false,
+  "message": "get profile success!",
+  "data": {
+    "id": 1,
+    "profile_picture": "https://example.com/profile.jpg",
+    "file_id": "abc123",
+    "name": "John Doe",
+    "email": "john@example.com",
+    "username": "john_doe",
+    "created_at": "2024-01-01T00:00:00Z"
+  }
+}
+```
+
+#### 2. Update Profile
 ```http
 PUT /user
 ```
 
 **Request Body (multipart/form-data):**
+- `name`: "John Doe Updated"
+- `email`: "john.updated@example.com"
+- `username`: "john_doe_updated"
+- `profile_picture`: [File Upload]
 
-- `name`: string
-- `email`: string
-- `username`: string
-- `profile_picture`: file (PNG, JPEG, JPG)
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "shouldNotify": true,
+  "message": "update profile success!",
+  "data": {
+    "id": 1,
+    "profile_picture": "https://example.com/new-profile.jpg",
+    "file_id": "xyz789",
+    "name": "John Doe Updated",
+    "email": "john.updated@example.com",
+    "username": "john_doe_updated",
+    "created_at": "2024-01-01T00:00:00Z"
+  }
+}
+```
 
-#### Change Password
-
+#### 3. Change Password
 ```http
 PUT /user/change-password
 ```
 
 **Request Body:**
-
 ```json
 {
-  "old_password": "string",
-  "new_password": "string"
+  "current_password": "currentpass123",
+  "new_password": "newpass123"
 }
 ```
 
-**Response:**
-
+**Success Response (200):**
 ```json
 {
-  "code": 200,
-  "status": "success"
+  "success": true,
+  "shouldNotify": true,
+  "message": "change password success!",
+  "data": null
+}
+```
+
+**Error Response (400):**
+```json
+{
+  "success": false,
+  "shouldNotify": true,
+  "message": "current password is incorrect",
+  "data": null
+}
+```
+
+#### 4. Update Profile Picture
+```http
+PUT /user/profile-picture
+```
+
+**Request Body (multipart/form-data):**
+- `profile_picture`: [File Upload]
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "shouldNotify": true,
+  "message": "upload image success!",
+  "data": null
 }
 ```
 
 ### Music History
 
-#### Get All History
-
+#### 1. Get All History
 ```http
 GET /history
 ```
 
-**Response:**
-
+**Success Response (200):**
 ```json
-[
-  {
-    "code": 0,
-    "status": "string",
-    "data": [
-      {
-        "id": 0,
-        "user_id": 0,
-        "mood": "string",
-        "playlist_name": "string",
-        "path": "string",
-        "created_at": "2024-11-02T22:55:02.980Z"
-      }
-    ]
-  }
-]
+{
+  "success": true,
+  "shouldNotify": false,
+  "message": "history retrieved successfully!",
+  "data": [
+    {
+      "id": 1,
+      "user_id": 1,
+      "mood": "happy",
+      "playlist_name": "Happy Vibes",
+      "path": "https://example.com/playlists/happy-vibes",
+      "created_at": "2024-01-01T00:00:00Z",
+      "music": [
+        {
+          "id": 1,
+          "history_id": 1,
+          "music_name": "Happy Song",
+          "path": "https://example.com/songs/happy-song",
+          "thumbnail": "https://example.com/thumbnails/happy-song",
+          "artist": "Happy Artist"
+        }
+      ]
+    }
+  ]
+}
 ```
 
-#### Get Specific History
-
+#### 2. Get Specific History
 ```http
 GET /history/{id}
 ```
 
-**Response:**
-
+**Success Response (200):**
 ```json
 {
-  "code": 0,
-  "status": "string",
+  "success": true,
+  "shouldNotify": false,
+  "message": "history entry found!",
   "data": {
-    "id": 0,
-    "user_id": 0,
-    "mood": "string",
-    "created_at": "2024-11-02T22:56:14.785Z",
-    "playlist": [
+    "id": 1,
+    "user_id": 1,
+    "mood": "happy",
+    "playlist_name": "Happy Vibes",
+    "path": "https://example.com/playlists/happy-vibes",
+    "created_at": "2024-01-01T00:00:00Z",
+    "music": [
       {
-        "id": 0,
-        "history_id": 0,
-        "music_name": "string",
-        "path": "string",
-        "thumbnail": "string",
-        "artist": "string"
+        "id": 1,
+        "history_id": 1,
+        "music_name": "Happy Song",
+        "path": "https://example.com/songs/happy-song",
+        "thumbnail": "https://example.com/thumbnails/happy-song",
+        "artist": "Happy Artist"
       }
     ]
   }
 }
 ```
 
-### Music Recommendation
+### Mood Detection & Recommendations
 
-```http request
+#### Detect Mood and Get Recommendations
+```http
 POST /mood-detection
 ```
 
-**Request Body:**
+**Request Body (multipart/form-data):**
+- `user_id`: 1
+- `image`: [Selfie Image File]
+- `genres`: ["pop", "rock", "jazz"]
+- `limit`: 20
 
+**Success Response (200):**
 ```json
 {
-  "user_id": 0,
-  "image": "base64",
-  "genres": [
-    "string",
-    "string"
-  ],
-  "limit": 10
-}
-```
-
-**Response:**
-
-```json
-{
-  "code": 200,
-  "status": "success",
+  "success": true,
+  "shouldNotify": false,
+  "message": "mood detected successfully!",
   "data": {
     "detected_mood": "happy",
+    "confidence_score": 0.95,
     "recommended_tracks": [
       {
-        "track_id": "spotify:track:123456",
-        "name": "Happy Song",
+        "track_id": "spotify:track:123abc",
+        "name": "Happy Track",
         "artist": "Happy Artist",
-        "preview_url": "https://p.scdn.co/mp3-preview/...",
-        "spotify_url": "https://open.spotify.com/track/123456",
-        "image_url": "https://i.scdn.co/image/..."
+        "preview_url": "https://example.com/preview/track1",
+        "spotify_url": "https://open.spotify.com/track/123abc",
+        "image_url": "https://example.com/album/cover1"
       }
     ],
-    "playlist_id": "spotify:playlist:789xyz"
+    "playlist_id": "playlist_123abc"
   }
 }
 ```
 
-## Complete OpenAPI Specification
+## 📊 Status Codes
 
-For detailed API documentation, you can:
+- `200`: Success
+- `400`: Bad Request
+- `401`: Unauthorized
+- `404`: Not Found
+- `500`: Internal Server Error
 
-1. View our [OpenAPI Specification](./api/api-spec.yaml)
-2. Import our [Postman Collection](./postman-collection.json)
+## 🔒 Security Notes
 
-## Error Responses
+1. All sensitive routes require JWT authentication
+2. Refresh tokens are valid for 30 days
+3. File uploads are restricted to PNG, JPEG, and JPG formats
+4. Profile pictures are processed and stored securely
 
-All endpoints return error responses in the following format:
+## 📱 Technical Requirements
 
-```json
-{
-  "code": 400,
-  "status": "error message"
-}
-```
+- Supports image upload for facial detection
+- Handles multipart/form-data for file uploads
+- Processes JSON for standard requests
+- Returns standardized JSON responses
 
-Common HTTP Status Codes:
+## 📞 Contact & Support
 
-- 200: Success
-- 400: Bad Request
-- 401: Unauthorized
-- 404: Not Found
-- 500: Internal Server Error
+For support or inquiries, please contact:
+- Email: ryu4w@gmail.com
+
+## ⚠️ Rate Limiting
+
+Please note that API endpoints may have rate limiting applied. Contact support for specific limitations.
+
+## 🔄 Version Information
+
+- Current Version: 1.0.0
+- Last Updated: 2024
