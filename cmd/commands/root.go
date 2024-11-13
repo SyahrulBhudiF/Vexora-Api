@@ -52,6 +52,11 @@ func initApp() {
 
 	imageKit := services.NewImageKitService(viper.GetString("imagekit.private_key"), viper.GetString("imagekit.public_key"), viper.GetString("imagekit.url_endpoint"))
 
+	spotify := services.NewSpotifyService(viper.GetString("spotify.client_id"), viper.GetString("spotify.client_secret"))
+	if err != nil {
+		logrus.Fatal("unable to initialize spotify service: %s", err.Error())
+	}
+
 	VexoraApp = &core.Vexora{
 		Viper:    viper,
 		App:      app,
@@ -59,6 +64,7 @@ func initApp() {
 		Redis:    rds,
 		JWT:      jwt,
 		ImageKit: imageKit,
+		Spotify:  spotify,
 	}
 	core.Init(VexoraApp)
 }

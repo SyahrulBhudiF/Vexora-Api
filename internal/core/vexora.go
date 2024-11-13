@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/SyahrulBhudiF/Vexora-Api/internal/delivery/middleware"
 	"github.com/SyahrulBhudiF/Vexora-Api/internal/delivery/routes"
+	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/playlist"
 	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/user"
 	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/user/repository"
 	"github.com/SyahrulBhudiF/Vexora-Api/internal/services"
@@ -22,19 +23,22 @@ type Vexora struct {
 	Redis    *redis.Client
 	JWT      *services.JWTService
 	ImageKit *services.ImageKitService
+	Spotify  *services.SpotifyService
 }
 
 func Init(vexora *Vexora) {
 	userRepo := repository.NewUserRepository(vexora.DB)
 	tokenRepo := types.NewRedisRepository(vexora.Redis, "token")
 	userHandler := user.NewUserHandler(userRepo, tokenRepo, vexora.JWT, vexora.ImageKit, vexora.Viper)
+	playlistHandler := playlist.NewPlaylistHandler(vexora.Spotify)
 
 	authMiddleware := middleware.NewAuthMiddleware(userRepo, tokenRepo, vexora.JWT)
 
 	route := routes.Route{
-		App:            vexora.App,
-		UserHandler:    userHandler,
-		AuthMiddleware: authMiddleware,
+		App:             vexora.App,
+		UserHandler:     userHandler,
+		AuthMiddleware:  authMiddleware,
+		PlaylistHandler: playlistHandler,
 	}
 
 	route.InitV1()
