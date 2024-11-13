@@ -110,6 +110,9 @@ components:
         path:
           type: string
           description: URL to the playlist
+        thumbnail:
+          type: string
+          description: URL to the playlist thumbnail
         created_at:
           type: string
           format: date-time
@@ -689,6 +692,47 @@ paths:
                     example: "history entry not found!"
                   data:
                     type: null
+
+  /random-playlist:
+    get:
+      tags:
+        - Get Random Playlist
+      summary: Get a random playlist
+      description: |
+        Get a random playlist from the Api Spotify
+      responses:
+        '200':
+          description: Playlist retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  shouldNotify:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "success"
+                  data:
+                    type: array
+                    items:
+                      properties:
+                        playlist_name:
+                          type: string
+                          example: "Chill Hits"
+                        artist:
+                          type: string
+                          example: "Spotify"
+                        path:
+                          type: string
+                          example: "https://open.spotify.com/playlist/37i9dQZF1DX4WYpdgoIcn6"
+                        thumbnail:
+                          type: string
+                          example: "https://i.scdn.co/image/ab67706f00000003b7b3b3b3b3b3b3b3b3b3b3b3"
 
   /mood-detection:
     post:

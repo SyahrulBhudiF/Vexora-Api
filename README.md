@@ -1,6 +1,7 @@
 # Vexora API
 
-Vexora is a mood-based music recommendation system that uses facial emotion detection to suggest personalized music playlists. The system leverages CNN for emotion detection and K-means clustering for music matching.
+Vexora is a mood-based music recommendation system that uses facial emotion detection to suggest personalized music
+playlists. The system leverages CNN for emotion detection and K-means clustering for music matching.
 
 ## 🎯 Features
 
@@ -20,12 +21,15 @@ Vexora is a mood-based music recommendation system that uses facial emotion dete
 ## 🚀 Getting Started
 
 ### Base URL
+
 ```
 http://localhost:5555/api/v1
 ```
 
 ### Authentication
+
 The API uses JWT Bearer token authentication. Include your token in the Authorization header:
+
 ```
 Authorization: Bearer <your_token>
 ```
@@ -35,11 +39,13 @@ Authorization: Bearer <your_token>
 ### Authentication
 
 #### 1. Register New User
+
 ```http
 POST /register
 ```
 
 **Request Body:**
+
 ```json
 {
   "name": "John Doe",
@@ -50,6 +56,7 @@ POST /register
 ```
 
 **Success Response (200):**
+
 ```json
 {
   "success": true,
@@ -68,6 +75,7 @@ POST /register
 ```
 
 **Error Response (400):**
+
 ```json
 {
   "success": false,
@@ -78,11 +86,13 @@ POST /register
 ```
 
 #### 2. Login
+
 ```http
 POST /login
 ```
 
 **Request Body:**
+
 ```json
 {
   "username": "john_doe",
@@ -91,6 +101,7 @@ POST /login
 ```
 
 **Success Response (200):**
+
 ```json
 {
   "success": true,
@@ -104,6 +115,7 @@ POST /login
 ```
 
 **Error Response (401):**
+
 ```json
 {
   "success": false,
@@ -114,11 +126,13 @@ POST /login
 ```
 
 #### 3. Logout
+
 ```http
 POST /logout
 ```
 
 **Request Body:**
+
 ```json
 {
   "refresh_token": "eyJhbGciOiJIUzI1NiIs..."
@@ -126,6 +140,7 @@ POST /logout
 ```
 
 **Success Response (200):**
+
 ```json
 {
   "success": true,
@@ -136,11 +151,13 @@ POST /logout
 ```
 
 #### 4. Refresh Token
+
 ```http
 POST /refresh
 ```
 
 **Request Body:**
+
 ```json
 {
   "refresh_token": "eyJhbGciOiJIUzI1NiIs..."
@@ -148,6 +165,7 @@ POST /refresh
 ```
 
 **Success Response (200):**
+
 ```json
 {
   "success": true,
@@ -161,6 +179,7 @@ POST /refresh
 ```
 
 **Error Response (401):**
+
 ```json
 {
   "success": false,
@@ -173,11 +192,13 @@ POST /refresh
 ### User Management
 
 #### 1. Get User Profile
+
 ```http
 GET /user
 ```
 
 **Success Response (200):**
+
 ```json
 {
   "success": true,
@@ -196,17 +217,20 @@ GET /user
 ```
 
 #### 2. Update Profile
+
 ```http
 PUT /user
 ```
 
 **Request Body (multipart/form-data):**
+
 - `name`: "John Doe Updated"
 - `email`: "john.updated@example.com"
 - `username`: "john_doe_updated"
 - `profile_picture`: [File Upload]
 
 **Success Response (200):**
+
 ```json
 {
   "success": true,
@@ -225,11 +249,13 @@ PUT /user
 ```
 
 #### 3. Change Password
+
 ```http
 PUT /user/change-password
 ```
 
 **Request Body:**
+
 ```json
 {
   "current_password": "currentpass123",
@@ -238,6 +264,7 @@ PUT /user/change-password
 ```
 
 **Success Response (200):**
+
 ```json
 {
   "success": true,
@@ -248,6 +275,7 @@ PUT /user/change-password
 ```
 
 **Error Response (400):**
+
 ```json
 {
   "success": false,
@@ -258,14 +286,17 @@ PUT /user/change-password
 ```
 
 #### 4. Update Profile Picture
+
 ```http
 PUT /user/profile-picture
 ```
 
 **Request Body (multipart/form-data):**
+
 - `profile_picture`: [File Upload]
 
 **Success Response (200):**
+
 ```json
 {
   "success": true,
@@ -278,11 +309,13 @@ PUT /user/profile-picture
 ### Music History
 
 #### 1. Get All History
+
 ```http
 GET /history
 ```
 
 **Success Response (200):**
+
 ```json
 {
   "success": true,
@@ -312,11 +345,13 @@ GET /history
 ```
 
 #### 2. Get Specific History
+
 ```http
 GET /history/{id}
 ```
 
 **Success Response (200):**
+
 ```json
 {
   "success": true,
@@ -343,20 +378,49 @@ GET /history/{id}
 }
 ```
 
+### Random Playlists
+
+#### 1. Get Random Playlist
+
+```http
+GET /random-playlist
+```
+
+**Success Response (200):**
+
+```json
+{
+  "success": true,
+  "shouldNotify": false,
+  "message": "random playlist retrieved successfully!",
+  "data": [
+    {
+      "playlist_name": "Random Playlist",
+      "artist": "Random Artist",
+      "path": "https://example.com/playlists/random-playlist",
+      "thumbnail": "https://example.com/thumbnails/random-playlist"
+    }
+  ]
+}
+```
+
 ### Mood Detection & Recommendations
 
 #### Detect Mood and Get Recommendations
+
 ```http
 POST /mood-detection
 ```
 
 **Request Body (multipart/form-data):**
+
 - `user_id`: 1
 - `image`: [Selfie Image File]
 - `genres`: ["pop", "rock", "jazz"]
 - `limit`: 20
 
 **Success Response (200):**
+
 ```json
 {
   "success": true,
@@ -405,6 +469,7 @@ POST /mood-detection
 ## 📞 Contact & Support
 
 For support or inquiries, please contact:
+
 - Email: ryu4w@gmail.com
 
 ## ⚠️ Rate Limiting

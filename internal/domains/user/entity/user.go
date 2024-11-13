@@ -1,15 +1,19 @@
 package entity
 
-import "github.com/SyahrulBhudiF/Vexora-Api/internal/types"
+import (
+	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/history/entity"
+	"github.com/SyahrulBhudiF/Vexora-Api/internal/types"
+)
 
 type User struct {
 	types.Entity
-	Username       string `json:"username" gorm:"unique;not null"`
-	Name           string `json:"name"`
-	Email          string `json:"email"`
-	Password       string `json:"password"`
-	ProfilePicture string `json:"profile_picture"`
-	FileId         string `json:"file_id"`
+	Username       string           `json:"username" gorm:"unique;not null"`
+	Name           string           `json:"name"`
+	Email          string           `json:"email"`
+	Password       string           `json:"password"`
+	ProfilePicture string           `json:"profile_picture"`
+	FileId         string           `json:"file_id"`
+	History        []entity.History `gorm:"foreignKey:UserId;references:UUID"`
 }
 
 func NewUser(username string, name string, email string, password string, profilePicture string, fileId string) *User {

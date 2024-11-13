@@ -36,6 +36,11 @@ type Config struct {
 		PublicKey   string `yaml:"public_key"`
 		URLEndpoint string `yaml:"url_endpoint"`
 	} `yaml:"imagekit"`
+	Spotify struct {
+		ClientID     string `yaml:"client_id"`
+		ClientSecret string `yaml:"client_secret"`
+		RedirectUri  string `yaml:"redirect_uri"`
+	} `yaml:"spotify"`
 }
 
 func NewConfig() *viper.Viper {
