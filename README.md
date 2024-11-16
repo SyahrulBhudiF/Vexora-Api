@@ -18,6 +18,12 @@ playlists. The system leverages CNN for emotion detection and K-means clustering
 - Angry 😠
 - Neutral/Calm 😐
 
+## Cache
+
+Cache Time : 30 Minutes
+
+- To Refresh Cache, Please use Parameter `refresh=T`
+
 ## 🚀 Getting Started
 
 ### Base URL

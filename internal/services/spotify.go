@@ -28,7 +28,7 @@ func NewSpotifyService(clientID string, clientSecret string) *SpotifyService {
 	}
 }
 
-func (s *SpotifyService) GetRandomRecommendations(limit int) (*entity.SpotifyResponse, error) {
+func (s *SpotifyService) GetRecommendations(limit int, trackAttrs *spotify.TrackAttributes) (*entity.PlaylistResponse, error) {
 	allGenres, err := s.client.GetAvailableGenreSeeds()
 	if err != nil {
 		return nil, err
@@ -40,11 +40,19 @@ func (s *SpotifyService) GetRandomRecommendations(limit int) (*entity.SpotifyRes
 
 	seedGenres := allGenres[:5]
 
-	recommendations, err := s.client.GetRecommendations(spotify.Seeds{
+	seeds := spotify.Seeds{
 		Genres: seedGenres,
-	}, &spotify.TrackAttributes{}, &spotify.Options{
+	}
+
+	options := &spotify.Options{
 		Limit: &limit,
-	})
+	}
+
+	if trackAttrs == nil {
+		trackAttrs = spotify.NewTrackAttributes()
+	}
+
+	recommendations, err := s.client.GetRecommendations(seeds, trackAttrs, options)
 
 	if err != nil {
 		return nil, err
@@ -67,7 +75,7 @@ func (s *SpotifyService) GetRandomRecommendations(limit int) (*entity.SpotifyRes
 		playlists = append(playlists, playlist)
 	}
 
-	return entity.NewSpotifyResponse(playlists), nil
+	return entity.NewPlaylistResponse(playlists), nil
 
 }
 
@@ -78,4 +86,34 @@ func (s *SpotifyService) GetGenreSeeds() ([]string, error) {
 	}
 
 	return genres, nil
+}
+
+func (s *SpotifyService) SearchTracks(query string) (*entity.MusicResponse, error) {
+	result, err := s.client.Search(query, spotify.SearchTypeTrack)
+	if err != nil {
+		return nil, err
+	}
+
+	tracks := result.Tracks.Tracks
+	if len(tracks) > 10 {
+		tracks = tracks[:10]
+	}
+
+	playlists := make([]entity.Music, 0, len(tracks))
+
+	for _, track := range tracks {
+		if len(track.Album.Images) == 0 {
+			continue
+		}
+
+		playlist := *entity.NewMusic(
+			track.Name,
+			track.Artists[0].Name,
+			track.ExternalURLs["spotify"],
+			track.Album.Images[0].URL,
+		)
+		playlists = append(playlists, playlist)
+	}
+
+	return entity.NewMusicResponse(playlists), nil
 }
