@@ -19,7 +19,7 @@ type Route struct {
 func (r *Route) InitV1() {
 	r.App.Use(cache.New(cache.Config{
 		Next: func(c *fiber.Ctx) bool {
-			return c.Query("refresh") == "true"
+			return c.Params("refresh") == "T"
 		},
 		Expiration:   30 * time.Minute,
 		CacheControl: true,
@@ -36,10 +36,13 @@ func (r *Route) InitializeUserRoutes(router fiber.Router) {
 	router.Post("/logout", r.AuthMiddleware.EnsureAuthenticated, middleware.EnsureJsonValidRequest[user.LogoutRequest], r.UserHandler.Logout)
 	router.Post("/refresh", middleware.EnsureJsonValidRequest[user.RefreshTokenRequest], r.UserHandler.RefreshToken)
 
-	router.Get("/user", r.AuthMiddleware.EnsureAuthenticated, r.UserHandler.GetProfile)
-	router.Put("/user", r.AuthMiddleware.EnsureAuthenticated, middleware.EnsureJsonValidRequest[user.UpdateProfileRequest], r.UserHandler.UpdateProfile)
-	router.Put("/user/profile-picture", r.AuthMiddleware.EnsureAuthenticated, r.UserHandler.UploadProfilePicture)
-	router.Put("/user/change-password", r.AuthMiddleware.EnsureAuthenticated, middleware.EnsureJsonValidRequest[user.ChangePasswordRequest], r.UserHandler.ChangePassword)
+	userRoute := router.Group("/user")
+	userRoute.Get("/", r.AuthMiddleware.EnsureAuthenticated, r.UserHandler.GetProfile)
+	userRoute.Put("/", r.AuthMiddleware.EnsureAuthenticated, middleware.EnsureJsonValidRequest[user.UpdateProfileRequest], r.UserHandler.UpdateProfile)
+	userRoute.Put("/user/profile-picture", r.AuthMiddleware.EnsureAuthenticated, r.UserHandler.UploadProfilePicture)
+	userRoute.Put("/user/change-password", r.AuthMiddleware.EnsureAuthenticated, middleware.EnsureJsonValidRequest[user.ChangePasswordRequest], r.UserHandler.ChangePassword)
 
 	router.Get("/random-playlist", r.AuthMiddleware.EnsureAuthenticated, r.PlaylistHandler.GetRecommendations)
+	router.Get("/available-genres", r.AuthMiddleware.EnsureAuthenticated, r.PlaylistHandler.GetAvailableGenres)
+	router.Get("/spotify/search", r.AuthMiddleware.EnsureAuthenticated, r.PlaylistHandler.GetSearch)
 }

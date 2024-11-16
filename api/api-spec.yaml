@@ -21,11 +21,11 @@ info:
     ## Authentication
     The API uses JWT Bearer token authentication. Include the token in the Authorization header:
     `Authorization: Bearer <your_token>`
-  version: 1.0.0
-  contact:
-    name: Vexora Support
-    email: ryu4w@gmail.com
-
+    
+    ## Cache 
+    Cache Time : 30 Minutes
+    - To Refresh Cache, Please use Parameter `refresh=T`
+  version: 0.0.4
 servers:
   - url: http://localhost:5555/api/v1
     description: Local Development Server

@@ -28,7 +28,7 @@ func NewImageKitService(privateKey string, publicKey string, urlEndpoint string)
 	}
 }
 
-func (service *ImageKitService) isValidImage(imageBuff []byte) error {
+func (service *ImageKitService) IsValidImage(imageBuff []byte) error {
 	mime := http.DetectContentType(imageBuff)
 
 	validImgMimes := []string{
