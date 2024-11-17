@@ -7,11 +7,11 @@ import (
 
 type SpotifyServiceInterface interface {
 	// GetRecommendations returns recommended tracks based on given limit and track attributes
-	GetRecommendations(limit int, trackAttrs *spotify.TrackAttributes) (*entity.SpotifyResponse, error)
+	GetRecommendations(limit int, trackAttrs *spotify.TrackAttributes) (*entity.PlaylistResponse, error)
 
-	// GetGenreSeeds returns available genre seeds from Spotify
-	GetGenreSeeds() ([]string, error)
+	// GetTrackByID returns a track based on the given ID
+	GetTrackByID(id string) (*entity.PlaylistResponse, error)
 
 	// SearchTracks searches for tracks based on the given query
-	SearchTracks(query string) (*entity.SpotifyResponse, error)
+	SearchTracks(query string) (*entity.PlaylistResponse, error)
 }
