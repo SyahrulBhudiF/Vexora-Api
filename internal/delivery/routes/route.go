@@ -11,15 +11,15 @@ import (
 
 type Route struct {
 	App             *fiber.App
-	UserHandler     *user.UserHandler
+	UserHandler     *user.Handler
 	AuthMiddleware  *middleware.AuthMiddleware
-	PlaylistHandler *playlist.PlaylistHandler
+	PlaylistHandler *playlist.Handler
 }
 
 func (r *Route) InitV1() {
 	r.App.Use(cache.New(cache.Config{
 		Next: func(c *fiber.Ctx) bool {
-			return c.Params("refresh") == "T"
+			return c.Query("refresh") == "true"
 		},
 		Expiration:   30 * time.Minute,
 		CacheControl: true,
@@ -42,7 +42,8 @@ func (r *Route) InitializeUserRoutes(router fiber.Router) {
 	userRoute.Put("/user/profile-picture", r.AuthMiddleware.EnsureAuthenticated, r.UserHandler.UploadProfilePicture)
 	userRoute.Put("/user/change-password", r.AuthMiddleware.EnsureAuthenticated, middleware.EnsureJsonValidRequest[user.ChangePasswordRequest], r.UserHandler.ChangePassword)
 
-	router.Get("/random-playlist", r.AuthMiddleware.EnsureAuthenticated, r.PlaylistHandler.GetRecommendations)
-	router.Get("/available-genres", r.AuthMiddleware.EnsureAuthenticated, r.PlaylistHandler.GetAvailableGenres)
-	router.Get("/spotify/search", r.AuthMiddleware.EnsureAuthenticated, r.PlaylistHandler.GetSearch)
+	spotify := router.Group("/spotify")
+	spotify.Get("/random-playlist", r.AuthMiddleware.EnsureAuthenticated, r.PlaylistHandler.GetRecommendations)
+	spotify.Get("/search", r.AuthMiddleware.EnsureAuthenticated, r.PlaylistHandler.GetSearch)
+	spotify.Get("/:id", r.AuthMiddleware.EnsureAuthenticated, r.PlaylistHandler.GetTrackByID)
 }
