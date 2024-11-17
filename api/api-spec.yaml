@@ -24,7 +24,7 @@ info:
     
     ## Cache 
     Cache Time : 30 Minutes
-    - To Refresh Cache, Please use Parameter `refresh=T`
+    - To Refresh Cache, Please use Parameter `refresh=true`
   version: 0.0.4
 servers:
   - url: http://localhost:5555/api/v1
@@ -123,20 +123,24 @@ components:
             $ref: '#/components/schemas/Music'
 
     RecommendedTrack:
-      type: object
-      properties:
-        track_id:
-          type: string
-        name:
-          type: string
-        artist:
-          type: string
-        preview_url:
-          type: string
-        spotify_url:
-          type: string
-        image_url:
-          type: string
+      type: array
+      items:
+        properties:
+          id:
+            type: string
+            example: "37i9dQZF1DX4WYpdgoIcn6"
+          playlist_name:
+            type: string
+            example: "Chill Hits"
+          artist:
+            type: string
+            example: "Spotify"
+          path:
+            type: string
+            example: "https://open.spotify.com/playlist/37i9dQZF1DX4WYpdgoIcn6"
+          thumbnail:
+            type: string
+            example: "https://i.scdn.co/image/ab67706f00000003b7b3b3b3b3b3b3b3b3b3b3b3"
 
     MoodDetectionData:
       type: object
@@ -693,13 +697,13 @@ paths:
                   data:
                     type: null
 
-  /random-playlist:
+  /spotify/random-playlist:
     get:
       tags:
-        - Get Random Playlist
-      summary: Get a random playlist
+        - Spotify API
+      summary: Get a Random Recommendations
       description: |
-        Get a random playlist from the Api Spotify
+        Get a Random Recommendations from the Api Spotify
       responses:
         '200':
           description: Playlist retrieved successfully
@@ -718,9 +722,45 @@ paths:
                     type: string
                     example: "success"
                   data:
-                    type: array
+                    $ref: "#/components/schemas/RecommendedTrack"
+
+  /spotify/{id}:
+    get:
+      tags:
+        - Spotify API
+      summary: Get a specific playlist
+      description: |
+        Get a specific playlist from the Api Spotify
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique identifier of the playlist
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Playlist retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  shouldNotify:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "success"
+                  data:
                     items:
                       properties:
+                        id:
+                          type: string
+                          example: "37i9dQZF1DX4WYpdgoIcn6"
                         playlist_name:
                           type: string
                           example: "Chill Hits"
@@ -733,6 +773,40 @@ paths:
                         thumbnail:
                           type: string
                           example: "https://i.scdn.co/image/ab67706f00000003b7b3b3b3b3b3b3b3b3b3b3b3"
+
+  /spotify/search:
+    get:
+      tags:
+        - Spotify API
+      summary: Search for playlists
+      description: |
+        Search for playlists on the Spotify API
+      parameters:
+        - name: search
+          in: query
+          required: true
+          description: Search query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Playlists retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  shouldNotify:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "success"
+                  data:
+                    $ref: "#/components/schemas/RecommendedTrack"
 
   /mood-detection:
     post:

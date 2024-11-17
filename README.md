@@ -22,7 +22,7 @@ playlists. The system leverages CNN for emotion detection and K-means clustering
 
 Cache Time : 30 Minutes
 
-- To Refresh Cache, Please use Parameter `refresh=T`
+- To Refresh Cache, Please use Parameter `refresh=true`
 
 ## 🚀 Getting Started
 
@@ -384,12 +384,12 @@ GET /history/{id}
 }
 ```
 
-### Random Playlists
+### Spotify API
 
-#### 1. Get Random Playlist
+#### 1. Get Random Recommendations
 
 ```http
-GET /random-playlist
+GET /spotify/random-playlist
 ```
 
 **Success Response (200):**
@@ -401,10 +401,59 @@ GET /random-playlist
   "message": "random playlist retrieved successfully!",
   "data": [
     {
+      "id": "dsadasdwe123",
       "playlist_name": "Random Playlist",
       "artist": "Random Artist",
       "path": "https://example.com/playlists/random-playlist",
       "thumbnail": "https://example.com/thumbnails/random-playlist"
+    }
+  ]
+}
+```
+
+#### 2. Get Track By ID
+
+```http
+GET /spotify/{id}
+```
+
+**Success Response (200):**
+
+```json
+{
+  "success": true,
+  "shouldNotify": false,
+  "message": "success",
+  "data": {
+    "id": "daskd2312opdask",
+    "name": "Happy Track",
+    "artist": "Happy Artist",
+    "path": "https://open.spotify.com/track/123abc",
+    "thumbnail": "https://example.com/album/cover1"
+  }
+}
+```
+
+#### 3. Search Tracks
+
+```http
+GET /spotify/search?search={query}
+```
+
+**Success Response (200):**
+
+```json
+{
+  "success": true,
+  "shouldNotify": false,
+  "message": "success",
+  "data": [
+    {
+      "id": "daskd2312opdask",
+      "name": "Happy Track",
+      "artist": "Happy Artist",
+      "path": "https://open.spotify.com/track/123abc",
+      "thumbnail": "https://example.com/album/cover1"
     }
   ]
 }
@@ -437,12 +486,11 @@ POST /mood-detection
     "confidence_score": 0.95,
     "recommended_tracks": [
       {
-        "track_id": "spotify:track:123abc",
+        "id": "daskd2312opdask",
         "name": "Happy Track",
         "artist": "Happy Artist",
-        "preview_url": "https://example.com/preview/track1",
-        "spotify_url": "https://open.spotify.com/track/123abc",
-        "image_url": "https://example.com/album/cover1"
+        "path": "https://open.spotify.com/track/123abc",
+        "thumbnail": "https://example.com/album/cover1"
       }
     ],
     "playlist_id": "playlist_123abc"

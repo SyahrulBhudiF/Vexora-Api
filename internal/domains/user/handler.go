@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-type UserHandler struct {
+type Handler struct {
 	userRepo        *userRepositories.UserRepository
 	tokenRepo       *types.RedisRepository
 	jwtService      *services.JWTService
@@ -24,8 +24,8 @@ type UserHandler struct {
 	viper           *viper.Viper
 }
 
-func NewUserHandler(userRepo *userRepositories.UserRepository, tokenRepo *types.RedisRepository, jwtService *services.JWTService, imageKitService *services.ImageKitService, viper *viper.Viper) *UserHandler {
-	return &UserHandler{
+func NewUserHandler(userRepo *userRepositories.UserRepository, tokenRepo *types.RedisRepository, jwtService *services.JWTService, imageKitService *services.ImageKitService, viper *viper.Viper) *Handler {
+	return &Handler{
 		userRepo:        userRepo,
 		tokenRepo:       tokenRepo,
 		jwtService:      jwtService,
@@ -34,7 +34,7 @@ func NewUserHandler(userRepo *userRepositories.UserRepository, tokenRepo *types.
 	}
 }
 
-func (handler *UserHandler) Register(ctx *fiber.Ctx) error {
+func (handler *Handler) Register(ctx *fiber.Ctx) error {
 	body := ctx.Locals("body").(*RegisterRequest)
 
 	user := entity.User{Username: body.Username}
@@ -61,7 +61,7 @@ func (handler *UserHandler) Register(ctx *fiber.Ctx) error {
 	return ctx.JSON(types.WebResponse[entity.User]{Message: "register success!", Success: true, ShouldNotify: false, Data: user})
 }
 
-func (handler *UserHandler) Login(ctx *fiber.Ctx) error {
+func (handler *Handler) Login(ctx *fiber.Ctx) error {
 	body := ctx.Locals("body").(*LoginRequest)
 
 	user := entity.User{Username: body.Username}
@@ -90,7 +90,7 @@ func (handler *UserHandler) Login(ctx *fiber.Ctx) error {
 	return ctx.JSON(types.WebResponse[entity.Token]{Message: "login success!", Success: true, ShouldNotify: false, Data: token})
 }
 
-func (handler *UserHandler) Logout(ctx *fiber.Ctx) error {
+func (handler *Handler) Logout(ctx *fiber.Ctx) error {
 	body := ctx.Locals("body").(*LogoutRequest)
 	rawAccessToken := ctx.Locals("accessToken").(string)
 
@@ -125,13 +125,13 @@ func (handler *UserHandler) Logout(ctx *fiber.Ctx) error {
 	return helpers.SuccessResponse[any](ctx, fiber.StatusOK, false, "sign out success!", nil)
 }
 
-func (handler *UserHandler) GetProfile(ctx *fiber.Ctx) error {
+func (handler *Handler) GetProfile(ctx *fiber.Ctx) error {
 	user := ctx.Locals("user").(*entity.User)
 
 	return helpers.SuccessResponse(ctx, fiber.StatusOK, false, "get profile success!", user)
 }
 
-func (handler *UserHandler) UpdateProfile(ctx *fiber.Ctx) error {
+func (handler *Handler) UpdateProfile(ctx *fiber.Ctx) error {
 	body := ctx.Locals("body").(*UpdateProfileRequest)
 	user := ctx.Locals("user").(*entity.User)
 
@@ -148,7 +148,7 @@ func (handler *UserHandler) UpdateProfile(ctx *fiber.Ctx) error {
 	return ctx.JSON(types.WebResponse[any]{Message: "update profile success!", Success: true, ShouldNotify: false})
 }
 
-func (handler *UserHandler) UploadProfilePicture(ctx *fiber.Ctx) error {
+func (handler *Handler) UploadProfilePicture(ctx *fiber.Ctx) error {
 	file, err := ctx.FormFile("image")
 	user := ctx.Locals("user").(*entity.User)
 
@@ -193,7 +193,7 @@ func (handler *UserHandler) UploadProfilePicture(ctx *fiber.Ctx) error {
 	return helpers.SuccessResponse[any](ctx, fiber.StatusOK, false, "upload image success!", nil)
 }
 
-func (handler *UserHandler) ChangePassword(ctx *fiber.Ctx) error {
+func (handler *Handler) ChangePassword(ctx *fiber.Ctx) error {
 	body := ctx.Locals("body").(*ChangePasswordRequest)
 	user := ctx.Locals("user").(*entity.User)
 
@@ -211,7 +211,7 @@ func (handler *UserHandler) ChangePassword(ctx *fiber.Ctx) error {
 	return helpers.SuccessResponse[any](ctx, fiber.StatusOK, false, "change password success!", nil)
 }
 
-func (handler *UserHandler) RefreshToken(ctx *fiber.Ctx) error {
+func (handler *Handler) RefreshToken(ctx *fiber.Ctx) error {
 	body := ctx.Locals("body").(*RefreshTokenRequest)
 
 	refreshClaims, err := handler.jwtService.ValidateRefreshToken(body.RefreshToken)

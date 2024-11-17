@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/playlist/entity"
+	"github.com/SyahrulBhudiF/Vexora-Api/internal/helpers"
 	"github.com/zmb3/spotify"
 	"golang.org/x/oauth2/clientcredentials"
 	"math/rand/v2"
@@ -20,7 +21,6 @@ func NewSpotifyService(clientID string, clientSecret string) *SpotifyService {
 	}
 
 	httpClient := config.Client(context.Background())
-
 	client := spotify.NewClient(httpClient)
 
 	return &SpotifyService{
@@ -38,10 +38,8 @@ func (s *SpotifyService) GetRecommendations(limit int, trackAttrs *spotify.Track
 		allGenres[i], allGenres[j] = allGenres[j], allGenres[i]
 	})
 
-	seedGenres := allGenres[:5]
-
 	seeds := spotify.Seeds{
-		Genres: seedGenres,
+		Genres: allGenres[:5],
 	}
 
 	options := &spotify.Options{
@@ -53,42 +51,14 @@ func (s *SpotifyService) GetRecommendations(limit int, trackAttrs *spotify.Track
 	}
 
 	recommendations, err := s.client.GetRecommendations(seeds, trackAttrs, options)
-
 	if err != nil {
 		return nil, err
 	}
 
-	playlists := make([]entity.RandomPlaylist, 0, len(recommendations.Tracks))
-
-	for _, track := range recommendations.Tracks {
-		fullTrack, err := s.client.GetTrack(track.ID)
-		if err != nil {
-			continue
-		}
-
-		playlist := *entity.NewRandomPlaylist(
-			fullTrack.Name,
-			fullTrack.Artists[0].Name,
-			fullTrack.ExternalURLs["spotify"],
-			fullTrack.Album.Images[0].URL,
-		)
-		playlists = append(playlists, playlist)
-	}
-
-	return entity.NewPlaylistResponse(playlists), nil
-
+	return helpers.ProcessSimpleTracksAsync(recommendations.Tracks, s.client.GetTrack)
 }
 
-func (s *SpotifyService) GetGenreSeeds() ([]string, error) {
-	genres, err := s.client.GetAvailableGenreSeeds()
-	if err != nil {
-		return nil, err
-	}
-
-	return genres, nil
-}
-
-func (s *SpotifyService) SearchTracks(query string) (*entity.MusicResponse, error) {
+func (s *SpotifyService) SearchTracks(query string) (*entity.PlaylistResponse, error) {
 	result, err := s.client.Search(query, spotify.SearchTypeTrack)
 	if err != nil {
 		return nil, err
@@ -99,21 +69,26 @@ func (s *SpotifyService) SearchTracks(query string) (*entity.MusicResponse, erro
 		tracks = tracks[:10]
 	}
 
-	playlists := make([]entity.Music, 0, len(tracks))
+	return helpers.ProcessFullTracksAsync(tracks)
+}
 
-	for _, track := range tracks {
-		if len(track.Album.Images) == 0 {
-			continue
-		}
-
-		playlist := *entity.NewMusic(
-			track.Name,
-			track.Artists[0].Name,
-			track.ExternalURLs["spotify"],
-			track.Album.Images[0].URL,
-		)
-		playlists = append(playlists, playlist)
+func (s *SpotifyService) GetTrackByID(trackID string) (*entity.PlaylistResponse, error) {
+	track, err := s.client.GetTrack(spotify.ID(trackID))
+	if err != nil {
+		return nil, err
 	}
 
-	return entity.NewMusicResponse(playlists), nil
+	if len(track.Album.Images) == 0 {
+		return entity.NewPlaylistResponse([]entity.RandomPlaylist{}), nil
+	}
+
+	playlist := entity.NewPlaylist(
+		track.ID.String(),
+		track.Name,
+		track.Artists[0].Name,
+		track.ExternalURLs["spotify"],
+		track.Album.Images[0].URL,
+	)
+
+	return entity.NewPlaylistResponse([]entity.RandomPlaylist{*playlist}), nil
 }
