@@ -24,12 +24,13 @@ type Vexora struct {
 	JWT      *services.JWTService
 	ImageKit *services.ImageKitService
 	Spotify  *services.SpotifyService
+	Mail     *services.MailService
 }
 
 func Init(vexora *Vexora) {
 	userRepo := repository.NewUserRepository(vexora.DB)
 	tokenRepo := types.NewRedisRepository(vexora.Redis, "token")
-	userHandler := user.NewUserHandler(userRepo, tokenRepo, vexora.JWT, vexora.ImageKit, vexora.Viper)
+	userHandler := user.NewUserHandler(userRepo, tokenRepo, vexora.JWT, vexora.ImageKit, vexora.Viper, vexora.Mail)
 	playlistHandler := playlist.NewPlaylistHandler(vexora.Spotify)
 
 	authMiddleware := middleware.NewAuthMiddleware(userRepo, tokenRepo, vexora.JWT)

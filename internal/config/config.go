@@ -41,6 +41,10 @@ type Config struct {
 		ClientSecret string `yaml:"client_secret"`
 		RedirectUri  string `yaml:"redirect_uri"`
 	} `yaml:"spotify"`
+	Mail struct {
+		Host string `yaml:"host"`
+		Port int    `yaml:"port"`
+	} `yaml:"mail"`
 }
 
 func NewConfig() *viper.Viper {

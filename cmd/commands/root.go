@@ -57,6 +57,8 @@ func initApp() {
 		logrus.Fatal("unable to initialize spotify service: %s", err.Error())
 	}
 
+	mail := services.NewMailService(viper.GetString("mail.host"), viper.GetInt("mail.port"), viper.GetString("mail.email"), viper.GetString("mail.password"))
+
 	VexoraApp = &core.Vexora{
 		Viper:    viper,
 		App:      app,
@@ -65,6 +67,7 @@ func initApp() {
 		JWT:      jwt,
 		ImageKit: imageKit,
 		Spotify:  spotify,
+		Mail:     mail,
 	}
 	core.Init(VexoraApp)
 }
