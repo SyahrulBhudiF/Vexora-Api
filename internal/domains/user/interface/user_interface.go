@@ -11,4 +11,7 @@ type UserHandlerInterface interface {
 	UploadProfilePicture(ctx *fiber.Ctx) error
 	ChangePassword(ctx *fiber.Ctx) error
 	RefreshToken(ctx *fiber.Ctx) error
+	SendOtp(ctx *fiber.Ctx) error
+	VerifyEmail(ctx *fiber.Ctx) error
+	ResetPassword(ctx *fiber.Ctx) error
 }

@@ -29,3 +29,17 @@ type ChangePasswordRequest struct {
 	PreviousPassword string `json:"previous_password" validate:"required,min=8"`
 	NewPassword      string `json:"new_password" validate:"required,min=8"`
 }
+
+type VerifyEmailRequest struct {
+	Email string `json:"email" validate:"required,email"`
+}
+
+type VerifyOtpRequest struct {
+	Email string `json:"email" validate:"required,email"`
+	Otp   string `json:"otp" validate:"required"`
+}
+
+type ResetPasswordRequest struct {
+	VerifyOtpRequest
+	NewPassword string `json:"new_password" validate:"required,min=8"`
+}

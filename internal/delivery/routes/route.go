@@ -35,6 +35,9 @@ func (r *Route) InitializeUserRoutes(router fiber.Router) {
 	router.Post("/login", middleware.EnsureJsonValidRequest[user.LoginRequest], r.UserHandler.Login)
 	router.Post("/logout", r.AuthMiddleware.EnsureAuthenticated, middleware.EnsureJsonValidRequest[user.LogoutRequest], r.UserHandler.Logout)
 	router.Post("/refresh", middleware.EnsureJsonValidRequest[user.RefreshTokenRequest], r.UserHandler.RefreshToken)
+	router.Post("/send-otp", middleware.EnsureJsonValidRequest[user.VerifyEmailRequest], r.UserHandler.SendOtp)
+	router.Post("/verify-email", middleware.EnsureJsonValidRequest[user.VerifyOtpRequest], r.UserHandler.VerifyEmail)
+	router.Post("/reset-password", middleware.EnsureJsonValidRequest[user.ResetPasswordRequest], r.UserHandler.ResetPassword)
 
 	userRoute := router.Group("/user")
 	userRoute.Get("/", r.AuthMiddleware.EnsureAuthenticated, r.UserHandler.GetProfile)

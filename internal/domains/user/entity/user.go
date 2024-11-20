@@ -10,6 +10,7 @@ type User struct {
 	Username       string           `json:"username" gorm:"unique;not null"`
 	Name           string           `json:"name"`
 	Email          string           `json:"email"`
+	Verify         bool             `json:"verify"`
 	Password       string           `json:"password"`
 	ProfilePicture string           `json:"profile_picture"`
 	FileId         string           `json:"file_id"`

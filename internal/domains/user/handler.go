@@ -22,15 +22,17 @@ type Handler struct {
 	jwtService      *services.JWTService
 	imageKitService *services.ImageKitService
 	viper           *viper.Viper
+	mail            *services.MailService
 }
 
-func NewUserHandler(userRepo *userRepositories.UserRepository, tokenRepo *types.RedisRepository, jwtService *services.JWTService, imageKitService *services.ImageKitService, viper *viper.Viper) *Handler {
+func NewUserHandler(userRepo *userRepositories.UserRepository, tokenRepo *types.RedisRepository, jwtService *services.JWTService, imageKitService *services.ImageKitService, viper *viper.Viper, mail *services.MailService) *Handler {
 	return &Handler{
 		userRepo:        userRepo,
 		tokenRepo:       tokenRepo,
 		jwtService:      jwtService,
 		imageKitService: imageKitService,
 		viper:           viper,
+		mail:            mail,
 	}
 }
 
@@ -71,6 +73,10 @@ func (handler *Handler) Login(ctx *fiber.Ctx) error {
 
 	if !utils.ComparePassword(user.Password, body.Password, handler.viper.GetString("app.secret")) {
 		return helpers.ErrorResponse(ctx, fiber.StatusUnauthorized, true, fmt.Errorf("invalid username or password"))
+	}
+
+	if !user.Verify {
+		return helpers.ErrorResponse(ctx, fiber.StatusUnauthorized, true, fmt.Errorf("email not verified"))
 	}
 
 	refreshTokenDuration := time.Duration(handler.viper.GetInt("auth.refresh_token_exp_days")) * time.Hour * 24
@@ -252,4 +258,93 @@ func (handler *Handler) RefreshToken(ctx *fiber.Ctx) error {
 	token := entity.Token{RefreshToken: body.RefreshToken, AccessToken: accessToken}
 
 	return helpers.SuccessResponse(ctx, fiber.StatusOK, false, "refresh token success!", token)
+}
+
+func (handler *Handler) SendOtp(ctx *fiber.Ctx) error {
+	body := ctx.Locals("body").(*VerifyEmailRequest)
+
+	user := &entity.User{Email: body.Email}
+	if err := handler.userRepo.Find(user); err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusUnauthorized, true, fmt.Errorf("invalid email"))
+	}
+
+	otp := utils.GenerateOTP()
+
+	otpDuration := 5 * time.Minute
+	if err := handler.tokenRepo.Set(otp, user.UUID.String(), otpDuration); err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to generate otp"))
+	}
+
+	err := handler.mail.SendMail(user.Email, "Email Verification", otp)
+	if err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to send email"+err.Error()))
+	}
+
+	return helpers.SuccessResponse[any](ctx, fiber.StatusOK, false, "email verification success!", nil)
+}
+
+func (handler *Handler) VerifyEmail(ctx *fiber.Ctx) error {
+	body := ctx.Locals("body").(*VerifyOtpRequest)
+
+	user := &entity.User{Email: body.Email}
+	if err := handler.userRepo.Find(user); err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusUnauthorized, true, fmt.Errorf("invalid email"))
+	}
+
+	isValid, err := handler.tokenRepo.Exists(body.Otp)
+	if err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to verify otp"))
+	}
+
+	if !isValid {
+		return helpers.ErrorResponse(ctx, fiber.StatusUnauthorized, true, fmt.Errorf("invalid otp"))
+	}
+
+	if err := handler.tokenRepo.Delete(body.Otp); err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to verify otp"))
+	}
+
+	user.Verify = true
+	if err := handler.userRepo.Update(user); err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to verify email"))
+	}
+
+	return helpers.SuccessResponse[any](ctx, fiber.StatusOK, false, "otp verification success!", nil)
+}
+
+func (handler *Handler) ResetPassword(ctx *fiber.Ctx) error {
+	body := ctx.Locals("body").(*ResetPasswordRequest)
+
+	user := &entity.User{Email: body.Email}
+	if err := handler.userRepo.Find(user); err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusUnauthorized, true, fmt.Errorf("invalid email"))
+	}
+
+	isValid, err := handler.tokenRepo.Exists(body.Otp)
+	if err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to verify otp"))
+	}
+
+	if !isValid {
+		return helpers.ErrorResponse(ctx, fiber.StatusUnauthorized, true, fmt.Errorf("invalid otp"))
+	}
+
+	if err := handler.tokenRepo.Delete(body.Otp); err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to verify otp"))
+	}
+
+	newPassword := body.NewPassword
+	hashedPassword := utils.HashPassword(newPassword, handler.viper.GetString("app.secret"))
+
+	user.Password = hashedPassword
+	if err := handler.userRepo.Update(user); err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to reset password"))
+	}
+
+	err = handler.mail.SendMail(user.Email, "Password Reset", "Your new password is "+newPassword)
+	if err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to send email"+err.Error()))
+	}
+
+	return helpers.SuccessResponse[any](ctx, fiber.StatusOK, false, "reset password success!", nil)
 }
