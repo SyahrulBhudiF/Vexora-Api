@@ -266,6 +266,11 @@ func (handler *Handler) SendOtp(ctx *fiber.Ctx) error {
 		return helpers.ErrorResponse(ctx, fiber.StatusUnauthorized, true, fmt.Errorf("invalid email"))
 	}
 
+	_, r := handler.tokenRepo.Exists(user.UUID.String())
+	if r != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to verify otp"))
+	}
+
 	otp := utils.GenerateOTP()
 
 	otpDuration := 5 * time.Minute
