@@ -19,10 +19,9 @@ type RefreshTokenRequest struct {
 }
 
 type UpdateProfileRequest struct {
-	Name           string `json:"name" validate:"max=50"`
-	Username       string `json:"username" validate:"max=30"`
-	Email          string `json:"email" validate:"email"`
-	ProfilePicture string `json:"profile_picture"`
+	Name     string `json:"name" validate:"max=50"`
+	Username string `json:"username" validate:"max=30"`
+	Email    string `json:"email" validate:"email"`
 }
 
 type ChangePasswordRequest struct {

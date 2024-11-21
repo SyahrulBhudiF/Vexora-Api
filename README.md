@@ -184,6 +184,84 @@ POST /refresh
 }
 ```
 
+5. Send OTP
+
+```http request
+POST /send-otp
+```
+
+**Request Body:**
+
+```json
+{
+  "email": "example@gmail.com"
+}
+```
+
+**Success Response (200):**
+
+```json
+{
+  "success": true,
+  "shouldNotify": true,
+  "message": "OTP sent successfully!",
+  "data": null
+}
+```
+
+6. Verify OTP
+
+```http request
+POST /verify-email
+```
+
+**Request Body:**
+
+```json
+{
+  "email": "example@gmail.com",
+  "otp": "123456"
+}
+```
+
+**Success Response (200):**
+
+```json
+{
+  "success": true,
+  "shouldNotify": true,
+  "message": "email verification success!",
+  "data": null
+}
+```
+
+7. Reset Password
+
+```http request
+POST /reset-password
+```
+
+**Request Body:**
+
+```json
+{
+  "email": "example@gmail.com",
+  "otp": "123456",
+  "password": "newpassword"
+}
+```
+
+**Success Response (200):**
+
+```json
+{
+  "success": true,
+  "shouldNotify": true,
+  "message": "password reset success!",
+  "data": null
+}
+```
+
 **Error Response (401):**
 
 ```json
