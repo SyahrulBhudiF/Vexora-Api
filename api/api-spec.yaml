@@ -388,6 +388,193 @@ paths:
                   data:
                     type: null
 
+  /send-otp:
+    post:
+      tags:
+        - Authentication
+      summary: Send OTP for email verification or password reset
+      description: Generate and send a one-time password (OTP) to the user's email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "example@gmail.com"
+      responses:
+        '200':
+          description: OTP sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  shouldNotify:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "OTP sent successfully!"
+                  data:
+                    type: null
+        '400':
+          description: Invalid email or OTP generation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  shouldNotify:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "invalid email or OTP generation failed"
+                  data:
+                    type: null
+
+  /verify-email:
+    post:
+      tags:
+        - Authentication
+      summary: Verify email using OTP
+      description: Verify user's email address by validating the one-time password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - otp
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "example@gmail.com"
+                otp:
+                  type: string
+                  description: One-time password received via email
+                  example: "123456"
+      responses:
+        '200':
+          description: Email verification successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  shouldNotify:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "email verification success!"
+                  data:
+                    type: null
+        '400':
+          description: Invalid OTP or email
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  shouldNotify:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "invalid OTP or email"
+                  data:
+                    type: null
+
+  /reset-password:
+    post:
+      tags:
+        - Authentication
+      summary: Reset user password
+      description: Reset password using email and validated OTP
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - otp
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "example@gmail.com"
+                otp:
+                  type: string
+                  description: One-time password received via email
+                  example: "123456"
+                password:
+                  type: string
+                  format: password
+                  description: New password for the account
+                  example: "newpassword123"
+      responses:
+        '200':
+          description: Password reset successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  shouldNotify:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "password reset success!"
+                  data:
+                    type: null
+        '400':
+          description: Invalid OTP, email, or password reset failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  shouldNotify:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "invalid OTP, email, or password reset failed"
+                  data:
+                    type: null
+
   /user:
     get:
       tags:

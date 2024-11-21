@@ -75,7 +75,7 @@ func (handler *Handler) Login(ctx *fiber.Ctx) error {
 		return helpers.ErrorResponse(ctx, fiber.StatusUnauthorized, true, fmt.Errorf("invalid username or password"))
 	}
 
-	if !user.Verify {
+	if user.Verify == false {
 		return helpers.ErrorResponse(ctx, fiber.StatusUnauthorized, true, fmt.Errorf("email not verified"))
 	}
 
@@ -145,10 +145,8 @@ func (handler *Handler) UpdateProfile(ctx *fiber.Ctx) error {
 		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to update profile"))
 	}
 
-	fmt.Println(user)
-
 	if err := handler.userRepo.Update(user); err != nil {
-		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to update profile"))
+		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to update profile"+err.Error()))
 	}
 
 	return ctx.JSON(types.WebResponse[any]{Message: "update profile success!", Success: true, ShouldNotify: false})
