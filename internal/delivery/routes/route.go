@@ -42,8 +42,8 @@ func (r *Route) InitializeUserRoutes(router fiber.Router) {
 	userRoute := router.Group("/user")
 	userRoute.Get("/", r.AuthMiddleware.EnsureAuthenticated, r.UserHandler.GetProfile)
 	userRoute.Put("/", r.AuthMiddleware.EnsureAuthenticated, middleware.EnsureJsonValidRequest[user.UpdateProfileRequest], r.UserHandler.UpdateProfile)
-	userRoute.Put("/user/profile-picture", r.AuthMiddleware.EnsureAuthenticated, r.UserHandler.UploadProfilePicture)
-	userRoute.Put("/user/change-password", r.AuthMiddleware.EnsureAuthenticated, middleware.EnsureJsonValidRequest[user.ChangePasswordRequest], r.UserHandler.ChangePassword)
+	userRoute.Put("/profile-picture", r.AuthMiddleware.EnsureAuthenticated, r.UserHandler.UploadProfilePicture)
+	userRoute.Put("/change-password", r.AuthMiddleware.EnsureAuthenticated, middleware.EnsureJsonValidRequest[user.ChangePasswordRequest], r.UserHandler.ChangePassword)
 
 	spotify := router.Group("/spotify")
 	spotify.Get("/random-playlist", r.AuthMiddleware.EnsureAuthenticated, r.PlaylistHandler.GetRecommendations)
