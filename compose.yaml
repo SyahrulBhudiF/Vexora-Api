@@ -11,6 +11,11 @@ services:
     restart: always
     ports:
       - "5555:5555"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - HOST_IP=host.docker.internal
+      - MOOD_DETECTION_URL=http://host.docker.internal:8000/mood-detection
     develop:
       watch:
         - path: ./

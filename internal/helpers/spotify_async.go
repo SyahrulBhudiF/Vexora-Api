@@ -8,7 +8,7 @@ import (
 
 // ProcessSimpleTracksAsync handles concurrent processing of SimpleTrack types
 func ProcessSimpleTracksAsync(tracks []spotify.SimpleTrack, processor func(spotify.ID) (*spotify.FullTrack, error)) (*entity.PlaylistResponse, error) {
-	results := make(chan entity.RandomPlaylist, len(tracks))
+	results := make(chan entity.RandomMusic, len(tracks))
 	var wg sync.WaitGroup
 
 	for _, track := range tracks {
@@ -44,7 +44,7 @@ func ProcessSimpleTracksAsync(tracks []spotify.SimpleTrack, processor func(spoti
 
 // ProcessFullTracksAsync handles concurrent processing of FullTrack types
 func ProcessFullTracksAsync(tracks []spotify.FullTrack) (*entity.PlaylistResponse, error) {
-	results := make(chan entity.RandomPlaylist, len(tracks))
+	results := make(chan entity.RandomMusic, len(tracks))
 	var wg sync.WaitGroup
 
 	for _, track := range tracks {
@@ -74,8 +74,8 @@ func ProcessFullTracksAsync(tracks []spotify.FullTrack) (*entity.PlaylistRespons
 	return collectResults(results)
 }
 
-func collectResults(results <-chan entity.RandomPlaylist) (*entity.PlaylistResponse, error) {
-	var validPlaylists []entity.RandomPlaylist
+func collectResults(results <-chan entity.RandomMusic) (*entity.PlaylistResponse, error) {
+	var validPlaylists []entity.RandomMusic
 	for playlist := range results {
 		validPlaylists = append(validPlaylists, playlist)
 	}

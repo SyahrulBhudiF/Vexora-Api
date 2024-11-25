@@ -31,7 +31,7 @@ func Init(vexora *Vexora) {
 	userRepo := repository.NewUserRepository(vexora.DB)
 	tokenRepo := types.NewRedisRepository(vexora.Redis, "token")
 	userHandler := user.NewUserHandler(userRepo, tokenRepo, vexora.JWT, vexora.ImageKit, vexora.Viper, vexora.Mail)
-	playlistHandler := playlist.NewPlaylistHandler(vexora.Spotify)
+	playlistHandler := playlist.NewPlaylistHandler(vexora.Spotify, vexora.Viper.GetString("auth.client_url"), vexora.Viper.GetString("auth.client_key"))
 
 	authMiddleware := middleware.NewAuthMiddleware(userRepo, tokenRepo, vexora.JWT)
 

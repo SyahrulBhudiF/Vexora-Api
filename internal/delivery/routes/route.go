@@ -39,6 +39,8 @@ func (r *Route) InitializeUserRoutes(router fiber.Router) {
 	router.Post("/verify-email", middleware.EnsureJsonValidRequest[user.VerifyOtpRequest], r.UserHandler.VerifyEmail)
 	router.Post("/reset-password", middleware.EnsureJsonValidRequest[user.ResetPasswordRequest], r.UserHandler.ResetPassword)
 
+	router.Post("/mood-detection", r.AuthMiddleware.EnsureAuthenticated, r.PlaylistHandler.MoodDetect)
+
 	userRoute := router.Group("/user")
 	userRoute.Get("/", r.AuthMiddleware.EnsureAuthenticated, r.UserHandler.GetProfile)
 	userRoute.Put("/", r.AuthMiddleware.EnsureAuthenticated, middleware.EnsureJsonValidRequest[user.UpdateProfileRequest], r.UserHandler.UpdateProfile)

@@ -15,8 +15,10 @@ type Config struct {
 		Secret  string `yaml:"secret"`
 	} `yaml:"app"`
 	Auth struct {
-		AccessTokenExpMins  int `yaml:"access_token_exp_mins"`
-		RefreshTokenExpDays int `yaml:"refresh_token_exp_days"`
+		AccessTokenExpMins  int    `yaml:"access_token_exp_mins"`
+		RefreshTokenExpDays int    `yaml:"refresh_token_exp_days"`
+		ClientKey           string `yaml:"client_key"`
+		ClientUrl           string `yaml:"client_url"`
 	} `yaml:"auth"`
 	Database struct {
 		Host     string `yaml:"host"`

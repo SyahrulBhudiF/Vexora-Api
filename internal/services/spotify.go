@@ -79,7 +79,7 @@ func (s *SpotifyService) GetTrackByID(trackID string) (*entity.PlaylistResponse,
 	}
 
 	if len(track.Album.Images) == 0 {
-		return entity.NewPlaylistResponse([]entity.RandomPlaylist{}), nil
+		return entity.NewPlaylistResponse([]entity.RandomMusic{}), nil
 	}
 
 	playlist := entity.NewPlaylist(
@@ -90,5 +90,5 @@ func (s *SpotifyService) GetTrackByID(trackID string) (*entity.PlaylistResponse,
 		track.Album.Images[0].URL,
 	)
 
-	return entity.NewPlaylistResponse([]entity.RandomPlaylist{*playlist}), nil
+	return entity.NewPlaylistResponse([]entity.RandomMusic{*playlist}), nil
 }
