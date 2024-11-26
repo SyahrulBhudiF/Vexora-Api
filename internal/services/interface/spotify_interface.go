@@ -1,7 +1,7 @@
 package _interface
 
 import (
-	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/playlist/entity"
+	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/history/entity"
 	"github.com/zmb3/spotify"
 )
 

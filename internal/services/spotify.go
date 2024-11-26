@@ -2,7 +2,7 @@ package services
 
 import (
 	"context"
-	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/playlist/entity"
+	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/history/entity"
 	"github.com/SyahrulBhudiF/Vexora-Api/internal/helpers"
 	"github.com/zmb3/spotify"
 	"golang.org/x/oauth2/clientcredentials"
@@ -69,7 +69,7 @@ func (s *SpotifyService) SearchTracks(query string) (*entity.PlaylistResponse, e
 		tracks = tracks[:10]
 	}
 
-	return helpers.ProcessFullTracksAsync(tracks)
+	return helpers.ProcessFullTracks(tracks)
 }
 
 func (s *SpotifyService) GetTrackByID(trackID string) (*entity.PlaylistResponse, error) {

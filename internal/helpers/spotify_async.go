@@ -1,7 +1,7 @@
 package helpers
 
 import (
-	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/playlist/entity"
+	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/history/entity"
 	"github.com/zmb3/spotify"
 	"sync"
 )
@@ -42,36 +42,27 @@ func ProcessSimpleTracksAsync(tracks []spotify.SimpleTrack, processor func(spoti
 	return collectResults(results)
 }
 
-// ProcessFullTracksAsync handles concurrent processing of FullTrack types
-func ProcessFullTracksAsync(tracks []spotify.FullTrack) (*entity.PlaylistResponse, error) {
-	results := make(chan entity.RandomMusic, len(tracks))
-	var wg sync.WaitGroup
+// ProcessFullTracks handles concurrent processing of FullTrack types
+func ProcessFullTracks(tracks []spotify.FullTrack) (*entity.PlaylistResponse, error) {
+	var validPlaylists []entity.RandomMusic
 
 	for _, track := range tracks {
 		if len(track.Album.Images) == 0 {
 			continue
 		}
 
-		wg.Add(1)
-		go func(track spotify.FullTrack) {
-			defer wg.Done()
-			playlist := entity.NewPlaylist(
-				track.ID.String(),
-				track.Name,
-				track.Artists[0].Name,
-				track.ExternalURLs["spotify"],
-				track.Album.Images[0].URL,
-			)
-			results <- *playlist
-		}(track)
+		playlist := entity.NewPlaylist(
+			track.ID.String(),
+			track.Name,
+			track.Artists[0].Name,
+			track.ExternalURLs["spotify"],
+			track.Album.Images[0].URL,
+		)
+		validPlaylists = append(validPlaylists, *playlist)
 	}
 
-	go func() {
-		wg.Wait()
-		close(results)
-	}()
+	return entity.NewPlaylistResponse(validPlaylists), nil
 
-	return collectResults(results)
 }
 
 func collectResults(results <-chan entity.RandomMusic) (*entity.PlaylistResponse, error) {

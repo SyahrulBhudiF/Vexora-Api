@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"github.com/SyahrulBhudiF/Vexora-Api/internal/delivery/middleware"
 	"github.com/SyahrulBhudiF/Vexora-Api/internal/delivery/routes"
-	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/playlist"
+	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/history"
+	repository2 "github.com/SyahrulBhudiF/Vexora-Api/internal/domains/history/repository"
 	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/user"
 	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/user/repository"
 	"github.com/SyahrulBhudiF/Vexora-Api/internal/services"
@@ -31,7 +32,9 @@ func Init(vexora *Vexora) {
 	userRepo := repository.NewUserRepository(vexora.DB)
 	tokenRepo := types.NewRedisRepository(vexora.Redis, "token")
 	userHandler := user.NewUserHandler(userRepo, tokenRepo, vexora.JWT, vexora.ImageKit, vexora.Viper, vexora.Mail)
-	playlistHandler := playlist.NewPlaylistHandler(vexora.Spotify, vexora.Viper.GetString("auth.client_url"), vexora.Viper.GetString("auth.client_key"))
+
+	historyRepo := repository2.NewHistoryRepository(vexora.DB)
+	playlistHandler := history.NewPlaylistHandler(vexora.Spotify, vexora.Viper.GetString("auth.client_url"), vexora.Viper.GetString("auth.client_key"), historyRepo)
 
 	authMiddleware := middleware.NewAuthMiddleware(userRepo, tokenRepo, vexora.JWT)
 

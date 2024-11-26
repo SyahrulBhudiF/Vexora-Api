@@ -7,20 +7,22 @@ import (
 
 type Music struct {
 	types.Entity
-	HistoryId uuid.UUID `json:"history_uuid" gorm:"type:uuid;foreignKey:HistoryId;references:UUID;onDelete:cascade"`
-	MusicName string    `json:"music_name"`
-	Path      string    `json:"path"`
-	Thumbnail string    `json:"thumbnail"`
-	Artist    string    `json:"artist"`
+	HistoryUUID uuid.UUID `gorm:"column:history_uuid;index" json:"history_uuid"`
+	ID          string    `json:"id"`
+	MusicName   string    `json:"playlist_name"`
+	Artist      string    `json:"artist"`
+	Path        string    `json:"path"`
+	Thumbnail   string    `json:"thumbnail"`
 }
 
-func NewMusic(historyId uuid.UUID, musicName string, path string, thumbnail string, artist string) *Music {
+func NewMusic(historyUUID uuid.UUID, id string, name string, artist string, path string, thumbnail string) *Music {
 	return &Music{
-		HistoryId: historyId,
-		MusicName: musicName,
-		Artist:    artist,
-		Path:      path,
-		Thumbnail: thumbnail,
+		HistoryUUID: historyUUID,
+		ID:          id,
+		MusicName:   name,
+		Artist:      artist,
+		Path:        path,
+		Thumbnail:   thumbnail,
 	}
 }
 

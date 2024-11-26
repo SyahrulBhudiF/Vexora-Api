@@ -2,7 +2,7 @@ package routes
 
 import (
 	"github.com/SyahrulBhudiF/Vexora-Api/internal/delivery/middleware"
-	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/playlist"
+	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/history"
 	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/user"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cache"
@@ -13,7 +13,7 @@ type Route struct {
 	App             *fiber.App
 	UserHandler     *user.Handler
 	AuthMiddleware  *middleware.AuthMiddleware
-	PlaylistHandler *playlist.Handler
+	PlaylistHandler *history.Handler
 }
 
 func (r *Route) InitV1() {
