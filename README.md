@@ -549,8 +549,6 @@ POST /mood-detection
 
 - `user_id`: 1
 - `image`: [Selfie Image File]
-- `genres`: ["pop", "rock", "jazz"]
-- `limit`: 20
 
 **Success Response (200):**
 

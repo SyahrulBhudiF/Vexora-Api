@@ -2,7 +2,7 @@ package services
 
 import (
 	"context"
-	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/playlist/entity"
+	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/history/entity"
 	"github.com/SyahrulBhudiF/Vexora-Api/internal/helpers"
 	"github.com/zmb3/spotify"
 	"golang.org/x/oauth2/clientcredentials"
@@ -69,7 +69,7 @@ func (s *SpotifyService) SearchTracks(query string) (*entity.PlaylistResponse, e
 		tracks = tracks[:10]
 	}
 
-	return helpers.ProcessFullTracksAsync(tracks)
+	return helpers.ProcessFullTracks(tracks)
 }
 
 func (s *SpotifyService) GetTrackByID(trackID string) (*entity.PlaylistResponse, error) {
@@ -79,7 +79,7 @@ func (s *SpotifyService) GetTrackByID(trackID string) (*entity.PlaylistResponse,
 	}
 
 	if len(track.Album.Images) == 0 {
-		return entity.NewPlaylistResponse([]entity.RandomPlaylist{}), nil
+		return entity.NewPlaylistResponse([]entity.RandomMusic{}), nil
 	}
 
 	playlist := entity.NewPlaylist(
@@ -90,5 +90,5 @@ func (s *SpotifyService) GetTrackByID(trackID string) (*entity.PlaylistResponse,
 		track.Album.Images[0].URL,
 	)
 
-	return entity.NewPlaylistResponse([]entity.RandomPlaylist{*playlist}), nil
+	return entity.NewPlaylistResponse([]entity.RandomMusic{*playlist}), nil
 }

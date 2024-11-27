@@ -14,7 +14,7 @@ type User struct {
 	Password       string           `json:"password"`
 	ProfilePicture string           `json:"profile_picture"`
 	FileId         string           `json:"file_id"`
-	History        []entity.History `gorm:"foreignKey:UserId;references:UUID"`
+	History        []entity.History `gorm:"foreignKey:user_uuid;references:UUID"`
 }
 
 func NewUser(username string, name string, email string, password string, profilePicture string, fileId string) *User {

@@ -1,6 +1,11 @@
 package types
 
-import "gorm.io/gorm"
+import (
+	"fmt"
+	"gorm.io/gorm"
+)
+
+type TransactionFunc[T any] func(tx *Repository[T]) error
 
 type Repository[T any] struct {
 	DB *gorm.DB
@@ -39,4 +44,38 @@ func (r *Repository[T]) Find(entity *T) error {
 
 func (r *Repository[T]) Exists(entity *T) bool {
 	return r.DB.First(entity, entity).RowsAffected > 0
+}
+
+func (r *Repository[T]) BeginTx() *Repository[T] {
+	return &Repository[T]{
+		DB: r.DB.Begin(),
+	}
+}
+
+func (r *Repository[T]) Commit() error {
+	return r.DB.Commit().Error
+}
+
+func (r *Repository[T]) Rollback() error {
+	return r.DB.Rollback().Error
+}
+
+func (r *Repository[T]) Transaction(fn TransactionFunc[T]) error {
+	tx := r.BeginTx()
+
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+			panic(r)
+		}
+	}()
+
+	if err := fn(tx); err != nil {
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			return fmt.Errorf("transaction error: %v, rollback error: %v", err, rollbackErr)
+		}
+		return err
+	}
+
+	return tx.Commit()
 }

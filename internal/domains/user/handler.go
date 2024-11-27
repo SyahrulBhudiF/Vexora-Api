@@ -159,6 +159,9 @@ func (handler *Handler) UploadProfilePicture(ctx *fiber.Ctx) error {
 	if err != nil {
 		return helpers.ErrorResponse(ctx, fiber.StatusBadRequest, true, fmt.Errorf("failed to get image"))
 	}
+	if err = helpers.ValidateImageFile(file); err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusBadRequest, true, err)
+	}
 
 	file.Filename = fmt.Sprintf("%s-%s", ctx.Locals("user").(*entity.User).UUID.String(), file.Filename)
 
@@ -190,7 +193,7 @@ func (handler *Handler) UploadProfilePicture(ctx *fiber.Ctx) error {
 
 	user.ProfilePicture = imageKitRes.Data.Url
 	user.FileId = imageKitRes.Data.FileId
-	if err := handler.userRepo.Update(user); err != nil {
+	if err = handler.userRepo.Update(user); err != nil {
 		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to update profile"))
 	}
 
@@ -303,12 +306,12 @@ func (handler *Handler) VerifyEmail(ctx *fiber.Ctx) error {
 		return helpers.ErrorResponse(ctx, fiber.StatusUnauthorized, true, fmt.Errorf("invalid otp"))
 	}
 
-	if err := handler.tokenRepo.Delete(body.Otp); err != nil {
+	if err = handler.tokenRepo.Delete(body.Otp); err != nil {
 		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to verify otp"))
 	}
 
 	user.Verify = true
-	if err := handler.userRepo.Update(user); err != nil {
+	if err = handler.userRepo.Update(user); err != nil {
 		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to verify email"))
 	}
 
@@ -332,7 +335,7 @@ func (handler *Handler) ResetPassword(ctx *fiber.Ctx) error {
 		return helpers.ErrorResponse(ctx, fiber.StatusUnauthorized, true, fmt.Errorf("invalid otp"))
 	}
 
-	if err := handler.tokenRepo.Delete(body.Otp); err != nil {
+	if err = handler.tokenRepo.Delete(body.Otp); err != nil {
 		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to verify otp"))
 	}
 
@@ -340,7 +343,7 @@ func (handler *Handler) ResetPassword(ctx *fiber.Ctx) error {
 	hashedPassword := utils.HashPassword(newPassword, handler.viper.GetString("app.secret"))
 
 	user.Password = hashedPassword
-	if err := handler.userRepo.Update(user); err != nil {
+	if err = handler.userRepo.Update(user); err != nil {
 		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to reset password"))
 	}
 

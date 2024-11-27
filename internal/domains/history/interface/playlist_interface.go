@@ -11,4 +11,7 @@ type PlaylistHandlerInterface interface {
 
 	// GetSearch handles the search request for tracks
 	GetSearch(ctx *fiber.Ctx) error
+
+	// MoodDetect handles the request to detect mood from an image
+	MoodDetect(ctx *fiber.Ctx) error
 }
