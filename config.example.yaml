@@ -3,9 +3,32 @@ app:
   host: 127.0.0.1
   port: 5555
   prefork: false
+auth:
+  access_token_exp_mins: 60
+  refresh_token_exp_days: 30
+  client_key: '111111111'
+  client_url: 'http://localhost:8000/mood-detection'
 database:
   host: 'localhost'
   port: 5432
   user: 'test'
   password: 'test'
   dbname: 'vexora'
+imagekit:
+  private_key: 'private'
+  public_key: 'public'
+  url_endpoint: 'https://dummy.url'
+redis:
+  host: 'localhost'
+  port: 6379
+  db: 0
+  password: ''
+spotify:
+  client_id: 'client_id'
+  client_secret: 'client_secret'
+  redirect_uri: 'http://localhost:5555/callback'
+mail:
+  host: 'smtp.gmail.com'
+  port: 587
+  email: 'dummy@gmail.com'
+  password: 'password'
