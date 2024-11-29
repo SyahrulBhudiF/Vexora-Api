@@ -13,5 +13,5 @@ type SpotifyServiceInterface interface {
 	GetTrackByID(id string) (*entity.PlaylistResponse, error)
 
 	// SearchTracks searches for tracks based on the given query
-	SearchTracks(query string) (*entity.PlaylistResponse, error)
+	SearchTracks(query string, limit int) (*entity.PlaylistResponse, error)
 }
