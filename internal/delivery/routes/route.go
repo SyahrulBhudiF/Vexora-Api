@@ -3,6 +3,7 @@ package routes
 import (
 	"github.com/SyahrulBhudiF/Vexora-Api/internal/delivery/middleware"
 	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/history"
+	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/music"
 	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/user"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cache"
@@ -14,6 +15,7 @@ type Route struct {
 	UserHandler     *user.Handler
 	AuthMiddleware  *middleware.AuthMiddleware
 	PlaylistHandler *history.Handler
+	MusicHandler    *music.Handler
 }
 
 func (r *Route) InitV1() {
@@ -27,10 +29,13 @@ func (r *Route) InitV1() {
 
 	api := r.App.Group("/api")
 	v1 := api.Group("/v1")
-	r.InitializeUserRoutes(v1)
+	r.initializeUserRoutes(v1)
+	r.initializeSpotifyRoutes(v1)
+	r.initializeHistoryRoutes(v1)
+	r.initializeMusicRoutes(v1)
 }
 
-func (r *Route) InitializeUserRoutes(router fiber.Router) {
+func (r *Route) initializeUserRoutes(router fiber.Router) {
 	router.Post("/register", middleware.EnsureJsonValidRequest[user.RegisterRequest], r.UserHandler.Register)
 	router.Post("/login", middleware.EnsureJsonValidRequest[user.LoginRequest], r.UserHandler.Login)
 	router.Post("/logout", r.AuthMiddleware.EnsureAuthenticated, middleware.EnsureJsonValidRequest[user.LogoutRequest], r.UserHandler.Logout)
@@ -46,9 +51,21 @@ func (r *Route) InitializeUserRoutes(router fiber.Router) {
 	userRoute.Put("/", r.AuthMiddleware.EnsureAuthenticated, middleware.EnsureJsonValidRequest[user.UpdateProfileRequest], r.UserHandler.UpdateProfile)
 	userRoute.Put("/profile-picture", r.AuthMiddleware.EnsureAuthenticated, r.UserHandler.UploadProfilePicture)
 	userRoute.Put("/change-password", r.AuthMiddleware.EnsureAuthenticated, middleware.EnsureJsonValidRequest[user.ChangePasswordRequest], r.UserHandler.ChangePassword)
+}
 
+func (r *Route) initializeSpotifyRoutes(router fiber.Router) {
 	spotify := router.Group("/spotify")
 	spotify.Get("/random-playlist", r.AuthMiddleware.EnsureAuthenticated, r.PlaylistHandler.GetRecommendations)
 	spotify.Get("/search", r.AuthMiddleware.EnsureAuthenticated, r.PlaylistHandler.GetSearch)
 	spotify.Get("/:id", r.AuthMiddleware.EnsureAuthenticated, r.PlaylistHandler.GetTrackByID)
+}
+
+func (r *Route) initializeHistoryRoutes(router fiber.Router) {
+	historyRoute := router.Group("/history")
+	historyRoute.Get("/", r.AuthMiddleware.EnsureAuthenticated, r.PlaylistHandler.GetHistory)
+}
+
+func (r *Route) initializeMusicRoutes(router fiber.Router) {
+	musicRoute := router.Group("/music")
+	musicRoute.Get("/:id", r.AuthMiddleware.EnsureAuthenticated, r.MusicHandler.GetMusic)
 }

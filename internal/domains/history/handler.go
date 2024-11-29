@@ -174,3 +174,13 @@ func (p *Handler) MoodDetect(ctx *fiber.Ctx) error {
 		Data:         *finalPlaylist,
 	})
 }
+
+func (p *Handler) GetHistory(ctx *fiber.Ctx) error {
+	user, _ := ctx.Locals("user").(*entity2.User)
+	history, err := p.historyRepo.FindByColumnValue("user_uuid", user.UUID)
+	if err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, err)
+	}
+
+	return ctx.JSON(types.WebResponse[[]entity.History]{Message: "success", Success: true, ShouldNotify: false, Data: history})
+}

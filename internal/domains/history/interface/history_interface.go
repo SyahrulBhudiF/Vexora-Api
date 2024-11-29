@@ -2,7 +2,7 @@ package _interface
 
 import "github.com/gofiber/fiber/v2"
 
-type PlaylistHandlerInterface interface {
+type HistoryHandlerInterface interface {
 	// GetRecommendations handles the request to get track recommendations
 	GetRecommendations(ctx *fiber.Ctx) error
 
@@ -14,4 +14,7 @@ type PlaylistHandlerInterface interface {
 
 	// MoodDetect handles the request to detect mood from an image
 	MoodDetect(ctx *fiber.Ctx) error
+
+	// GetHistory handles the request to get user's history
+	GetHistory(ctx *fiber.Ctx) error
 }

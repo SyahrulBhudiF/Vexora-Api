@@ -9,6 +9,10 @@ import (
 	"net/http"
 )
 
+type IService interface {
+	DetectMood(file *multipart.FileHeader) (*entity.MoodDetectionResponse, error)
+}
+
 type Service struct {
 	clientURL string
 	clientKey string
