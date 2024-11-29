@@ -1,0 +1,585 @@
+{
+	"info": {
+		"_postman_id": "5b0fa84e-565a-4d8a-99dd-9f8f21d46be6",
+		"name": "Vexora-api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "28978072"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"user3\",\n  \"name\": \"Test User\",\n  \"email\": \"user3@example.com\",\n  \"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5555/api/v1/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5555",
+							"path": [
+								"api",
+								"v1",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"Budi123\",\n  \"password\": \"bimoli789\"   \n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5555/api/v1/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5555",
+							"path": [
+								"api",
+								"v1",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiODcyMTgwN2MtMDYwMy00MTAyLTg1MDgtNjRiMGU4N2EwYmJkIiwidXNlcm5hbWUiOiJCdWRpMTIzIiwiZXhwIjoxNzMwOTg0NDQ3LCJpYXQiOjE3MzA5ODA4NDd9.SfXWF0YP6IwC3BeVjjkhF15SD4lWwCJ439fqLZjQ2_Pv_t3ZO-RHD_2EkTnUO4K5UnNcEUaObPmOsftmXqr9ig",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"refresh_token\": \"eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzM1NzI4NDcsImlhdCI6MTczMDk4MDg0Nywic3ViIjoiODcyMTgwN2MtMDYwMy00MTAyLTg1MDgtNjRiMGU4N2EwYmJkIn0.x5bd_7tTAdT3uT3EosUifcxu8L0-NIZ_WuVrejSixhX-gazEaBVsuhqWvSQIKdtbFp7nppluiHCqaeM1TcaXeA\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5555/api/v1/logout",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5555",
+							"path": [
+								"api",
+								"v1",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Token",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5555/api/v1//refresh",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5555",
+							"path": [
+								"api",
+								"v1",
+								"",
+								"refresh"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send Otp",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\" : \"syahrul88w@gmail.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5555/api/v1/send-otp",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5555",
+							"path": [
+								"api",
+								"v1",
+								"send-otp"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Verify OTP",
+					"request": {
+						"method": "POST",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "Reset Password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"syahrul88w@gmail.com\",\n    \"otp\": \"\",\n    \"new_password\": \"bimoli789\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5555/api/v1/reset-password",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5555",
+							"path": [
+								"api",
+								"v1",
+								"reset-password"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Get User",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiODcyMTgwN2MtMDYwMy00MTAyLTg1MDgtNjRiMGU4N2EwYmJkIiwidXNlcm5hbWUiOiJCdWRpMTIzIiwiZXhwIjoxNzMwOTg0ODQ1LCJpYXQiOjE3MzA5ODEyNDV9.Pm5q7uk_di7IGUAhwo9GiOLH5SYcPCjr4C7TI6HHtOlw6vAg6gm-66vdEu5qQWIGPK5eRPrkz36vABO7PBKr0w",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5555/api/v1/user",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5555",
+							"path": [
+								"api",
+								"v1",
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiODcyMTgwN2MtMDYwMy00MTAyLTg1MDgtNjRiMGU4N2EwYmJkIiwidXNlcm5hbWUiOiJCdWRpMTIzIiwiZXhwIjoxNzMwOTg0OTk3LCJpYXQiOjE3MzA5ODEzOTd9.skvspHnh7eiSvjubNSaWZ0B1ZnG6aWK6p-lWdqBMDOuoxdQhoS28wF9Z5FmrDiIilNK9zv-YlgXEv2nJfSJehg",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Budiono Siregar\",\n    \"username\": \"Budi123\",\n    \"email\": \"budi@gmail.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5555/api/v1/user",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5555",
+							"path": [
+								"api",
+								"v1",
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Picture",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiODcyMTgwN2MtMDYwMy00MTAyLTg1MDgtNjRiMGU4N2EwYmJkIiwidXNlcm5hbWUiOiJ1c2VyMiIsImV4cCI6MTczMDk4MjgwNCwiaWF0IjoxNzMwOTc5MjA0fQ.DlbnJscsuH-0PVz0MW5qFd7vQB1Apv7eilbE3Yg-ZQ4pA0Xu1-1UZy6az5wVzlnTysqgtbSryffZW6C117rKzw",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "image",
+									"type": "file",
+									"src": "/home/ryuko/Pictures/Wallpaper/FB_IMG_1619016485211.jpg"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:5555/api/v1/user/profile-picture",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5555",
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"profile-picture"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Password",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiNTUzY2Y5ZmItZmNkMy00Njk4LWJkZWYtZWYyZDM1ZGViMjgwIiwidXNlcm5hbWUiOiJzeWFocnVsIiwiZXhwIjoxNzMyNDk4MDc2LCJpYXQiOjE3MzI0OTQ0NzZ9.Cd60QjxruXKW25-MomifSWlvQVTQVAJ8nSum3ko31E82QAB70YCx9lvKyDmbmDza5HDKMB5DOBuGoNG0W5NoAQ",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"previous_password\" : \"password123\",\n    \"new_password\": \"bimoli789\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5555/api/v1/user/change-password",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5555",
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"change-password"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Playlist",
+			"item": [
+				{
+					"name": "Random Playlist",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "Search",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiZTdlYzBiMzYtYzk5MS00OTE3LWFmZmMtMDMzMjUyNjczMzk4IiwidXNlcm5hbWUiOiJ1c2VyMyIsImV4cCI6MTczMTc4MzY5NSwiaWF0IjoxNzMxNzgwMDk1fQ.silGvCerFtJTd_4fu1sBq14a_-3UIa2t38PCaW1Kf5WjGeHJ69029REjSdImuL7oKyU-LcHEtzazk9r11FoblQ",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5555/api/v1/spotify/search?search=Indonesia&refresh=T",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5555",
+							"path": [
+								"api",
+								"v1",
+								"spotify",
+								"search"
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": "Indonesia"
+								},
+								{
+									"key": "refresh",
+									"value": "T"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Tracks By Id",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "FastApi",
+			"item": [
+				{
+					"name": "Mood Detect",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Secret-Key",
+								"value": "#s9O`rcD?Py,>{n@}jeA",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "image",
+									"type": "file",
+									"src": "/home/ryuko/Downloads/Foto_muka.jpg"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/mood-detection",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"mood-detection"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Spotify Reccomendation",
+			"item": [
+				{
+					"name": "Get Reccomendation",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiNTUzY2Y5ZmItZmNkMy00Njk4LWJkZWYtZWYyZDM1ZGViMjgwIiwidXNlcm5hbWUiOiJzeWFocnVsIiwiZXhwIjoxNzMyNTQxMjk4LCJpYXQiOjE3MzI1Mzc2OTh9.sUgryDrdTKZpNyvAoJPbN-yE1A2tHp_hMJHWr4Fa3NhxQIHYMIIqUknP3bvPJpSqbHVzZbsCZR2smTGF4QQVyQ",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "image",
+									"type": "file",
+									"src": "/home/ryuko/Downloads/Foto_muka.jpg"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:5555/api/v1/mood-detection?refresh=true",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5555",
+							"path": [
+								"api",
+								"v1",
+								"mood-detection"
+							],
+							"query": [
+								{
+									"key": "refresh",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "History",
+			"item": [
+				{
+					"name": "Get History",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Music",
+			"item": [
+				{
+					"name": "Get Music",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiNTUzY2Y5ZmItZmNkMy00Njk4LWJkZWYtZWYyZDM1ZGViMjgwIiwidXNlcm5hbWUiOiJzeWFocnVsIiwiZXhwIjoxNzMyODc1MzAyLCJpYXQiOjE3MzI4NzE3MDJ9.yvVs326a5-ECHqGfFj3g_B6OKKmaDxi8_AevaDOEKDtznTGIrYMyewLpKwdeMxn7CHMN6a9xbyhXVpr59vzBfg",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5555/api/v1/music/48f9aa54-135d-411b-8c3c-8a92f878f3bd?refresh=true",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5555",
+							"path": [
+								"api",
+								"v1",
+								"music",
+								"48f9aa54-135d-411b-8c3c-8a92f878f3bd"
+							],
+							"query": [
+								{
+									"key": "refresh",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

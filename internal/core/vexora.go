@@ -6,6 +6,8 @@ import (
 	"github.com/SyahrulBhudiF/Vexora-Api/internal/delivery/routes"
 	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/history"
 	repository2 "github.com/SyahrulBhudiF/Vexora-Api/internal/domains/history/repository"
+	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/music"
+	repository3 "github.com/SyahrulBhudiF/Vexora-Api/internal/domains/music/repository"
 	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/user"
 	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/user/repository"
 	"github.com/SyahrulBhudiF/Vexora-Api/internal/services"
@@ -36,6 +38,8 @@ func Init(vexora *Vexora) {
 	historyRepo := repository2.NewHistoryRepository(vexora.DB)
 	playlistHandler := history.NewPlaylistHandler(vexora.Spotify, vexora.Viper.GetString("auth.client_url"), vexora.Viper.GetString("auth.client_key"), historyRepo)
 
+	musicHandler := music.NewMusicHandler(repository3.NewMusicRepository(vexora.DB))
+
 	authMiddleware := middleware.NewAuthMiddleware(userRepo, tokenRepo, vexora.JWT)
 
 	route := routes.Route{
@@ -43,6 +47,7 @@ func Init(vexora *Vexora) {
 		UserHandler:     userHandler,
 		AuthMiddleware:  authMiddleware,
 		PlaylistHandler: playlistHandler,
+		MusicHandler:    musicHandler,
 	}
 
 	route.InitV1()

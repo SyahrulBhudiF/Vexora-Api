@@ -46,6 +46,15 @@ func (r *Repository[T]) Exists(entity *T) bool {
 	return r.DB.First(entity, entity).RowsAffected > 0
 }
 
+func (r *Repository[T]) FindByColumnValue(columnName string, value any) ([]T, error) {
+	var entities []T
+	err := r.DB.Where(fmt.Sprintf("%s = ?", columnName), value).Find(&entities).Error
+	if err != nil {
+		return nil, err
+	}
+	return entities, nil
+}
+
 func (r *Repository[T]) BeginTx() *Repository[T] {
 	return &Repository[T]{
 		DB: r.DB.Begin(),
