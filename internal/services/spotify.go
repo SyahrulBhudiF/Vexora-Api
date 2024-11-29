@@ -58,8 +58,12 @@ func (s *SpotifyService) GetRecommendations(limit int, trackAttrs *spotify.Track
 	return helpers.ProcessSimpleTracksAsync(recommendations.Tracks, s.client.GetTrack)
 }
 
-func (s *SpotifyService) SearchTracks(query string) (*entity.PlaylistResponse, error) {
-	result, err := s.client.Search(query, spotify.SearchTypeTrack)
+func (s *SpotifyService) SearchTracks(query string, limit int) (*entity.PlaylistResponse, error) {
+	searchOptions := spotify.Options{
+		Limit: &limit,
+	}
+
+	result, err := s.client.SearchOpt(query, spotify.SearchTypeTrack, &searchOptions)
 	if err != nil {
 		return nil, err
 	}
