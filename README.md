@@ -309,7 +309,6 @@ PUT /user
 **Request Body (multipart/form-data):**
 
 - `name`: "John Doe Updated"
-- `email`: "john.updated@example.com"
 - `username`: "john_doe_updated"
 - `profile_picture`: [File Upload]
 
@@ -320,15 +319,7 @@ PUT /user
   "success": true,
   "shouldNotify": true,
   "message": "update profile success!",
-  "data": {
-    "id": 1,
-    "profile_picture": "https://example.com/new-profile.jpg",
-    "file_id": "xyz789",
-    "name": "John Doe Updated",
-    "email": "john.updated@example.com",
-    "username": "john_doe_updated",
-    "created_at": "2024-01-01T00:00:00Z"
-  }
+  "data": null
 }
 ```
 
@@ -342,7 +333,7 @@ PUT /user/change-password
 
 ```json
 {
-  "current_password": "currentpass123",
+  "previous_password": "currentpass123",
   "new_password": "newpass123"
 }
 ```
@@ -407,19 +398,19 @@ GET /history
   "message": "history retrieved successfully!",
   "data": [
     {
-      "id": 1,
+      "uuid": "abc123",
       "user_id": 1,
       "mood": "happy",
-      "created_at": "2024-01-01T00:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z"
     }
   ]
 }
 ```
 
-#### 2. Get Specific History
+#### 2. Get Music History By ID
 
 ```http
-GET /history/{id}
+GET /music/{id}
 ```
 
 **Success Response (200):**
@@ -429,24 +420,18 @@ GET /history/{id}
   "success": true,
   "shouldNotify": false,
   "message": "history entry found!",
-  "data": {
-    "id": 1,
-    "user_id": 1,
-    "mood": "happy",
-    "playlist_name": "Happy Vibes",
-    "path": "https://example.com/playlists/happy-vibes",
-    "created_at": "2024-01-01T00:00:00Z",
-    "music": [
-      {
-        "id": 1,
-        "history_id": 1,
-        "music_name": "Happy Song",
-        "path": "https://example.com/songs/happy-song",
-        "thumbnail": "https://example.com/thumbnails/happy-song",
-        "artist": "Happy Artist"
-      }
-    ]
-  }
+  "data": [
+    {
+      "uuid": "2c187355-9a61-4b22-b40b-c4636a01ad52",
+      "created_at": "2024-11-30T18:36:23.872084Z",
+      "history_uuid": "aaea230a-6846-438f-b566-3ff9f1256622",
+      "id": "3puYuuZ7lmlTjIgXBOT01k",
+      "playlist_name": "Pilihanku",
+      "artist": "MALIQ & D'Essentials",
+      "path": "https://open.spotify.com/track/3puYuuZ7lmlTjIgXBOT01k",
+      "thumbnail": "https://i.scdn.co/image/ab67616d0000b2734b274090757829034de581df"
+    }
+  ]
 }
 ```
 
@@ -465,15 +450,17 @@ GET /spotify/random-playlist
   "success": true,
   "shouldNotify": false,
   "message": "random playlist retrieved successfully!",
-  "data": [
-    {
-      "id": "dsadasdwe123",
-      "playlist_name": "Random Playlist",
-      "artist": "Random Artist",
-      "path": "https://example.com/playlists/random-playlist",
-      "thumbnail": "https://example.com/thumbnails/random-playlist"
-    }
-  ]
+  "data": {
+    "music": [
+      {
+        "id": "0lYBSQXN6rCTvUZvg9S0lU",
+        "playlist_name": "Let Me Love You",
+        "artist": "DJ Snake",
+        "path": "https://open.spotify.com/track/0lYBSQXN6rCTvUZvg9S0lU",
+        "thumbnail": "https://i.scdn.co/image/ab67616d0000b273212d776c31027c511f0ee3bc"
+      }
+    ]
+  }
 }
 ```
 
@@ -491,11 +478,15 @@ GET /spotify/{id}
   "shouldNotify": false,
   "message": "success",
   "data": {
-    "id": "daskd2312opdask",
-    "name": "Happy Track",
-    "artist": "Happy Artist",
-    "path": "https://open.spotify.com/track/123abc",
-    "thumbnail": "https://example.com/album/cover1"
+    "music": [
+      {
+        "id": "6TQghwJw3Sh8h9mTcV5BR7",
+        "playlist_name": "Sewanee Mountain Catfight",
+        "artist": "Old Crow Medicine Show",
+        "path": "https://open.spotify.com/track/6TQghwJw3Sh8h9mTcV5BR7",
+        "thumbnail": "https://i.scdn.co/image/ab67616d0000b27366990be0a5b69a9a1ca8b882"
+      }
+    ]
   }
 }
 ```
@@ -513,16 +504,17 @@ GET /spotify/search?search={query}
   "success": true,
   "shouldNotify": false,
   "message": "success",
-  "data": [
-    {
-      "id": "daskd2312opdask",
-      "name": "Happy Track",
-      "artist": "Happy Artist",
-      "path": "https://open.spotify.com/track/123abc",
-      "thumbnail": "https://example.com/album/cover1"
+  "data": {
+    "music": [
+      {
+        "id": "0PtJbtW50jcvvswNPn3QGd",
+        "playlist_name": "Serana",
+        "artist": "For Revenge",
+        "path": "https://open.spotify.com/track/0PtJbtW50jcvvswNPn3QGd",
+        "thumbnail": "https://i.scdn.co/image/ab67616d0000b27346f02ffc0922f939ed0fd53f"
+      },
+      }
     }
-  ]
-}
 ```
 
 ### Mood Detection & Recommendations
@@ -547,8 +539,7 @@ POST /mood-detection
   "message": "mood detected successfully!",
   "data": {
     "detected_mood": "happy",
-    "confidence_score": 0.95,
-    "recommended_tracks": [
+    "music": [
       {
         "id": "daskd2312opdask",
         "name": "Happy Track",
@@ -557,7 +548,7 @@ POST /mood-detection
         "thumbnail": "https://example.com/album/cover1"
       }
     ],
-    "playlist_id": "playlist_123abc"
+    "created_at": "timestamp"
   }
 }
 ```
