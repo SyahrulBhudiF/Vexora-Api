@@ -7,7 +7,7 @@ import (
 	"github.com/zmb3/spotify"
 )
 
-func CreateHistoryEntry(user *entity2.User, mood string, recommendations *entity3.PlaylistResponse) *entity3.History {
+func CreateHistoryEntry(user *entity2.User, mood string, recommendations *entity3.MoodResponse) *entity3.History {
 	history := &entity3.History{
 		UserUUID: user.UUID,
 		Mood:     mood,
