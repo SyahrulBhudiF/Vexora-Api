@@ -168,6 +168,7 @@ func (p *Handler) MoodDetect(ctx *fiber.Ctx) error {
 	}
 
 	finalPlaylist.Mood = mood.Data
+	finalPlaylist.CreatedAt = time.Now().Format(time.RFC3339)
 
 	return ctx.JSON(types.WebResponse[entity.MoodResponse]{
 		Message:      "success",
