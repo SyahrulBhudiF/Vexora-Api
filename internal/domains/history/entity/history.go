@@ -18,6 +18,11 @@ type PlaylistResponse struct {
 	Music []RandomMusic `json:"music"`
 }
 
+type MoodResponse struct {
+	Mood  string        `json:"detected_mood"`
+	Music []RandomMusic `json:"music"`
+}
+
 func NewPlaylist(id string, name string, artist string, path string, thumbnail string) *RandomMusic {
 	return &RandomMusic{
 		ID:        id,

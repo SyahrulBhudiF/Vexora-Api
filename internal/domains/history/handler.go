@@ -90,7 +90,7 @@ func (p *Handler) MoodDetect(ctx *fiber.Ctx) error {
 	})
 
 	existingTrackIds := make(map[string]bool)
-	finalPlaylist := &entity.PlaylistResponse{
+	finalPlaylist := &entity.MoodResponse{
 		Music: []entity.RandomMusic{},
 	}
 
@@ -167,7 +167,9 @@ func (p *Handler) MoodDetect(ctx *fiber.Ctx) error {
 		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, err)
 	}
 
-	return ctx.JSON(types.WebResponse[entity.PlaylistResponse]{
+	finalPlaylist.Mood = mood.Data
+
+	return ctx.JSON(types.WebResponse[entity.MoodResponse]{
 		Message:      "success",
 		Success:      true,
 		ShouldNotify: false,
