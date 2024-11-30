@@ -80,47 +80,50 @@ components:
       type: object
       properties:
         id:
-          type: number
-        history_id:
-          type: number
-        music_name:
+          type: string
+        playlist_name:
+          type: string
+        artist:
           type: string
         path:
           type: string
         thumbnail:
           type: string
-        artist:
-          type: string
 
     HistoryEntry:
       type: object
       properties:
-        id:
-          type: number
-          description: History entry ID
+        uuid:
+          type: string
+          description: Unique identifier for the history entry
         user_id:
           type: number
           description: User ID associated with the history
         mood:
           type: string
           description: Mood associated with the listening session
-        playlist_name:
-          type: string
-          description: Name of the playlist
-        path:
-          type: string
-          description: URL to the playlist
-        thumbnail:
-          type: string
-          description: URL to the playlist thumbnail
         created_at:
           type: string
           format: date-time
           description: When the history entry was created
         music:
+          type: null
+          example: null
+          description: Music data associated with the history entry
+
+    MoodDetectionData:
+      type: object
+      properties:
+        detected_mood:
+          type: string
+          enum: [ happy, sad, angry, neutral ]
+        music:
           type: array
           items:
             $ref: '#/components/schemas/Music'
+        created_at:
+          type: string
+          format: date-time
 
     RecommendedTrack:
       type: array
@@ -142,21 +145,7 @@ components:
             type: string
             example: "https://i.scdn.co/image/ab67706f00000003b7b3b3b3b3b3b3b3b3b3b3b3"
 
-    MoodDetectionData:
-      type: object
-      properties:
-        detected_mood:
-          type: string
-          enum: [ happy, sad, angry, neutral ]
-        confidence_score:
-          type: number
-          format: float
-        recommended_tracks:
-          type: array
-          items:
-            $ref: '#/components/schemas/RecommendedTrack'
-        playlist_id:
-          type: string
+
 
 paths:
   /login:
@@ -635,10 +624,6 @@ paths:
                 name:
                   type: string
                   description: Updated full name
-                email:
-                  type: string
-                  format: email
-                  description: Updated email address
                 username:
                   type: string
                   description: Updated username
@@ -698,10 +683,10 @@ paths:
             schema:
               type: object
               required:
-                - current_password
+                - previous_password
                 - new_password
               properties:
-                current_password:
+                previous_password:
                   type: string
                   format: password
                   description: Current password
@@ -909,7 +894,12 @@ paths:
                     type: string
                     example: "success"
                   data:
-                    $ref: "#/components/schemas/RecommendedTrack"
+                    type: object
+                    properties:
+                      music:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Music'
 
   /spotify/{id}:
     get:
@@ -943,23 +933,12 @@ paths:
                     type: string
                     example: "success"
                   data:
-                    items:
-                      properties:
-                        id:
-                          type: string
-                          example: "37i9dQZF1DX4WYpdgoIcn6"
-                        playlist_name:
-                          type: string
-                          example: "Chill Hits"
-                        artist:
-                          type: string
-                          example: "Spotify"
-                        path:
-                          type: string
-                          example: "https://open.spotify.com/playlist/37i9dQZF1DX4WYpdgoIcn6"
-                        thumbnail:
-                          type: string
-                          example: "https://i.scdn.co/image/ab67706f00000003b7b3b3b3b3b3b3b3b3b3b3b3"
+                    type: object
+                    properties:
+                      music:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Music'
 
   /spotify/search:
     get:
@@ -993,16 +972,18 @@ paths:
                     type: string
                     example: "success"
                   data:
-                    $ref: "#/components/schemas/RecommendedTrack"
+                    type: object
+                    properties:
+                      music:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Music'
 
   /mood-detection:
     post:
       tags:
         - Mood Detection
       summary: Detect mood from facial expression and get music recommendations
-      description: |
-        Upload a selfie image to detect emotional state and receive personalized music recommendations.
-        The system uses CNN for emotion detection and K-means clustering for music matching.
       security:
         - bearerAuth: [ ]
       requestBody:
@@ -1022,33 +1003,6 @@ paths:
                   type: string
                   format: binary
                   description: Selfie image file (JPEG, PNG)
-                genres:
-                  type: array
-                  items:
-                    type: string
-                    enum:
-                      - pop
-                      - rock
-                      - hip-hop
-                      - r-n-b
-                      - classical
-                      - jazz
-                      - electronic
-                      - indie
-                      - metal
-                      - country
-                    description: Preferred music genres for recommendations
-                limit:
-                  type: integer
-                  minimum: 1
-                  maximum: 50
-                  default: 20
-                  description: Maximum number of tracks to recommend
-            encoding:
-              image:
-                contentType:
-                  - image/jpeg
-                  - image/png
       responses:
         '200':
           description: Mood detected and recommendations generated successfully
@@ -1069,7 +1023,7 @@ paths:
                   data:
                     $ref: '#/components/schemas/MoodDetectionData'
         '400':
-          description: Invalid input (bad image format, invalid genres)
+          description: Invalid input (bad image format)
           content:
             application/json:
               schema:
