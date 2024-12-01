@@ -627,10 +627,6 @@ paths:
                 username:
                   type: string
                   description: Updated username
-                profile_picture:
-                  type: string
-                  format: binary
-                  description: New profile picture (PNG, JPEG, JPG only)
       responses:
         '200':
           description: Profile updated successfully
@@ -649,7 +645,8 @@ paths:
                     type: string
                     example: "update profile success!"
                   data:
-                    $ref: '#/components/schemas/UserProfile'
+                    type: null
+                    example: null
         '400':
           description: Invalid input
           content:
@@ -745,7 +742,7 @@ paths:
             schema:
               type: object
               properties:
-                profile_picture:
+                image:
                   type: string
                   format: binary
                   description: New profile picture (PNG, JPEG, JPG only)

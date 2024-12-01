@@ -310,7 +310,6 @@ PUT /user
 
 - `name`: "John Doe Updated"
 - `username`: "john_doe_updated"
-- `profile_picture`: [File Upload]
 
 **Success Response (200):**
 
@@ -368,7 +367,7 @@ PUT /user/profile-picture
 
 **Request Body (multipart/form-data):**
 
-- `profile_picture`: [File Upload]
+- `image`: [File Upload]
 
 **Success Response (200):**
 
