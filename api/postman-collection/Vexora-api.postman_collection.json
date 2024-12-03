@@ -535,6 +535,14 @@
 						"header": []
 					},
 					"response": []
+				},
+				{
+					"name": "Get Most Mood",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
 				}
 			]
 		},
