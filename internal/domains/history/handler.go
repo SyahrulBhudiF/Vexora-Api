@@ -187,3 +187,13 @@ func (p *Handler) GetHistory(ctx *fiber.Ctx) error {
 
 	return ctx.JSON(types.WebResponse[[]entity.History]{Message: "success", Success: true, ShouldNotify: false, Data: history})
 }
+
+func (p *Handler) GetMostFrequentMood(ctx *fiber.Ctx) error {
+	user, _ := ctx.Locals("user").(*entity2.User)
+	mood, err := p.historyRepo.GetMostFrequentMoodByUserUUID(user.UUID)
+	if err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, err)
+	}
+
+	return ctx.JSON(types.WebResponse[entity.MostMood]{Message: "success", Success: true, ShouldNotify: false, Data: entity.MostMood{Mood: mood}})
+}

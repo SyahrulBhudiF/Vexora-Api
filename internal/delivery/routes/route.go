@@ -6,8 +6,6 @@ import (
 	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/music"
 	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/user"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cache"
-	"time"
 )
 
 type Route struct {
@@ -19,13 +17,13 @@ type Route struct {
 }
 
 func (r *Route) InitV1() {
-	r.App.Use(cache.New(cache.Config{
-		Next: func(c *fiber.Ctx) bool {
-			return c.Query("refresh") == "true"
-		},
-		Expiration:   30 * time.Minute,
-		CacheControl: true,
-	}))
+	//r.App.Use(cache.New(cache.Config{
+	//	Next: func(c *fiber.Ctx) bool {
+	//		return c.Query("refresh") == "true"
+	//	},
+	//	Expiration:   30 * time.Minute,
+	//	CacheControl: true,
+	//}))
 
 	api := r.App.Group("/api")
 	v1 := api.Group("/v1")
@@ -63,6 +61,8 @@ func (r *Route) initializeSpotifyRoutes(router fiber.Router) {
 func (r *Route) initializeHistoryRoutes(router fiber.Router) {
 	historyRoute := router.Group("/history")
 	historyRoute.Get("/", r.AuthMiddleware.EnsureAuthenticated, r.PlaylistHandler.GetHistory)
+	historyRoute.Get("/most-mood", r.AuthMiddleware.EnsureAuthenticated, r.PlaylistHandler.GetMostFrequentMood)
+
 }
 
 func (r *Route) initializeMusicRoutes(router fiber.Router) {

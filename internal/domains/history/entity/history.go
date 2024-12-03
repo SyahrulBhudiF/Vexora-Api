@@ -24,6 +24,10 @@ type MoodResponse struct {
 	CreatedAt string        `json:"created_at"`
 }
 
+type MostMood struct {
+	Mood string `json:"mood"`
+}
+
 func NewPlaylist(id string, name string, artist string, path string, thumbnail string) *RandomMusic {
 	return &RandomMusic{
 		ID:        id,

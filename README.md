@@ -434,6 +434,25 @@ GET /music/{id}
 }
 ```
 
+#### 3. Get Most Mood
+
+```http
+GET /history/most-mood
+```
+
+**Success Response (200):**
+
+```json
+{
+  "success": true,
+  "shouldNotify": false,
+  "message": "success",
+  "data": {
+    "mood": "happy"
+  }
+}
+```
+
 ### Spotify API
 
 #### 1. Get Random Recommendations

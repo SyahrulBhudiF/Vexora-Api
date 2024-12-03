@@ -866,6 +866,38 @@ paths:
                   data:
                     type: null
 
+  /history/most-mood:
+    get:
+      tags:
+        - Music History
+      summary: Get most listened mood
+      security:
+        - bearerAuth: [ ]
+      description: Retrieve the most listened mood by the authenticated user
+      responses:
+        '200':
+          description: Most listened mood retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  shouldNotify:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "success"
+                  data:
+                    type: object
+                    properties:
+                      mood:
+                        type: string
+                        example: "happy"
+
   /spotify/random-playlist:
     get:
       tags:
