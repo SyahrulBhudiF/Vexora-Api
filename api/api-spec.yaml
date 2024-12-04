@@ -22,9 +22,11 @@ info:
     The API uses JWT Bearer token authentication. Include the token in the Authorization header:
     `Authorization: Bearer <your_token>`
     
-    ## Cache 
-    Cache Time : 30 Minutes
-    - To Refresh Cache, Please use Parameter `refresh=true`
+    ## Run Localy
+    To run the API locally, use the following command:
+    ```bash
+    docker compose watch
+    ```
   version: 0.0.4
 servers:
   - url: http://localhost:5555/api/v1
@@ -52,7 +54,7 @@ components:
     UserProfile:
       type: object
       properties:
-        id:
+        uuid:
           type: number
           description: Unique user identifier
         profile_picture:
@@ -645,8 +647,7 @@ paths:
                     type: string
                     example: "update profile success!"
                   data:
-                    type: null
-                    example: null
+                    $ref: '#/components/schemas/UserProfile'
         '400':
           description: Invalid input
           content:
