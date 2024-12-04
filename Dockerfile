@@ -10,13 +10,15 @@ COPY . .
 ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64
 RUN go build cmd/vexora/vexora.go
 
-FROM scratch
+FROM alpine:latest
 
 # Copy the ca-certificates from the builder stage
 COPY --from=builder /etc/ssl/certs /etc/ssl/certs
 
 # Optional: Copy host certificates (if required)
 # COPY /etc/ssl/certs /etc/ssl/certs
+
+RUN apk add htop
 
 COPY --from=builder ["/build/vexora", "/build/config.yaml", "/"]
 
