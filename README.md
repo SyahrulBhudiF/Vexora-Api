@@ -26,10 +26,10 @@ Cache Time : 30 Minutes
 
 ## 🚀 Getting Started
 
-### Base URL
+### Run Localy
 
 ```
-http://localhost:5555/api/v1
+docker compose watch
 ```
 
 ### Authentication
@@ -289,7 +289,7 @@ GET /user
   "shouldNotify": false,
   "message": "get profile success!",
   "data": {
-    "id": 1,
+    "uuid": 1,
     "profile_picture": "https://example.com/profile.jpg",
     "file_id": "abc123",
     "name": "John Doe",
@@ -318,7 +318,15 @@ PUT /user
   "success": true,
   "shouldNotify": true,
   "message": "update profile success!",
-  "data": null
+  "data": {
+    "uuid": 1,
+    "profile_picture": "https://example.com/profile.jpg",
+    "file_id": "abc123",
+    "name": "John Doe",
+    "email": "john@example.com",
+    "username": "john_doe",
+    "created_at": "2024-01-01T00:00:00Z"
+  }
 }
 ```
 

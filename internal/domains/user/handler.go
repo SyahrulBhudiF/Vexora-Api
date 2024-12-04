@@ -149,7 +149,7 @@ func (handler *Handler) UpdateProfile(ctx *fiber.Ctx) error {
 		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to update profile"+err.Error()))
 	}
 
-	return ctx.JSON(types.WebResponse[any]{Message: "update profile success!", Success: true, ShouldNotify: false})
+	return ctx.JSON(types.WebResponse[entity.User]{Message: "update profile success!", Success: true, ShouldNotify: false, Data: *user})
 }
 
 func (handler *Handler) UploadProfilePicture(ctx *fiber.Ctx) error {
