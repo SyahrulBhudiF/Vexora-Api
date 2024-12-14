@@ -1,7 +1,7 @@
 # Vexora API
 
 Vexora is a mood-based music recommendation system that uses facial emotion detection to suggest personalized music
-playlists. The system leverages CNN for emotion detection and K-means clustering for music matching.
+playlists. The system leverages CNN for emotion detection.
 ![Desktop - 6](https://github.com/user-attachments/assets/d13f70af-e420-43a9-80e1-605d7dde7d3c)
 
 
@@ -20,11 +20,11 @@ playlists. The system leverages CNN for emotion detection and K-means clustering
 - Angry 😠
 - Neutral/Calm 😐
 
-## Cache
-
-Cache Time : 30 Minutes
-
-- To Refresh Cache, Please use Parameter `refresh=true`
+## TechStack
+- Fiber Go
+- PostgreSQL
+- Redis
+- ImageKit
 
 ## 🚀 Getting Started
 
@@ -249,7 +249,7 @@ POST /reset-password
 {
   "email": "example@gmail.com",
   "otp": "123456",
-  "password": "newpassword"
+  "new_password": "newpassword"
 }
 ```
 
