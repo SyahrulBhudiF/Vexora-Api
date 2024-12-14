@@ -2,6 +2,8 @@
 
 Vexora is a mood-based music recommendation system that uses facial emotion detection to suggest personalized music
 playlists. The system leverages CNN for emotion detection and K-means clustering for music matching.
+![Desktop - 6](https://github.com/user-attachments/assets/d13f70af-e420-43a9-80e1-605d7dde7d3c)
+
 
 ## 🎯 Features
 
