@@ -6,6 +6,8 @@ services:
     restart: always
     ports:
       - "6379:6379"
+    networks:
+      - vexora-nginx-network
   vexora:
     build: .
     restart: always
@@ -26,6 +28,8 @@ services:
       - redis
     healthcheck:
       test: [ "CMD", "redis-cli","ping" ]
+    networks:
+      - vexora-nginx-network
   model:
     build:
       context: .
@@ -35,3 +39,9 @@ services:
       - "8000:8000"
     environment:
       - HOST_IP=host.docker.internal
+    networks:
+      - vexora-nginx-network
+
+networks:
+  vexora-nginx-network:
+    driver: bridge
