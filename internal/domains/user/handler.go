@@ -2,6 +2,7 @@ package user
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/user/entity"
 	userRepositories "github.com/SyahrulBhudiF/Vexora-Api/internal/domains/user/repository"
@@ -149,6 +150,20 @@ func (handler *Handler) UpdateProfile(ctx *fiber.Ctx) error {
 		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to update profile"+err.Error()))
 	}
 
+	redisKey := fmt.Sprintf("user:%s", user.UUID)
+	if err := handler.tokenRepo.Delete(redisKey); err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to delete user cache"))
+	}
+
+	userJSON, err := json.Marshal(user)
+	if err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to marshal user data"))
+	}
+
+	if err := handler.tokenRepo.Set(redisKey, string(userJSON), 60*time.Minute); err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to set user cache"))
+	}
+
 	return ctx.JSON(types.WebResponse[entity.User]{Message: "update profile success!", Success: true, ShouldNotify: false, Data: *user})
 }
 
@@ -281,7 +296,7 @@ func (handler *Handler) SendOtp(ctx *fiber.Ctx) error {
 		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to generate otp"))
 	}
 
-	err := handler.mail.SendMail(user.Email, "Email Verification", otp)
+	err := handler.mail.SendMail(user.Email, "Email Verification", "Your OTP is "+otp)
 	if err != nil {
 		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to send email"+err.Error()))
 	}
@@ -347,7 +362,7 @@ func (handler *Handler) ResetPassword(ctx *fiber.Ctx) error {
 		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to reset password"))
 	}
 
-	err = handler.mail.SendMail(user.Email, "Password Reset", "Your new password is "+newPassword)
+	err = handler.mail.SendMail(user.Email, "Password Reset", "Reset password success!")
 	if err != nil {
 		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to send email"+err.Error()))
 	}

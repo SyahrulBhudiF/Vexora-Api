@@ -5,7 +5,12 @@ import (
 	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/history"
 	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/music"
 	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/user"
+	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/user/entity"
+	"github.com/SyahrulBhudiF/Vexora-Api/internal/helpers"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/limiter"
+	"github.com/google/uuid"
+	"time"
 )
 
 type Route struct {
@@ -17,13 +22,20 @@ type Route struct {
 }
 
 func (r *Route) InitV1() {
-	//r.App.Use(cache.New(cache.Config{
-	//	Next: func(c *fiber.Ctx) bool {
-	//		return c.Query("refresh") == "true"
-	//	},
-	//	Expiration:   30 * time.Minute,
-	//	CacheControl: true,
-	//}))
+	r.App.Use(limiter.New(limiter.Config{
+		Expiration: 1 * time.Minute,
+		Max:        20,
+		KeyGenerator: func(c *fiber.Ctx) string {
+			users, ok := c.Locals("user").(*entity.User)
+			if !ok || users == nil || users.UUID == uuid.Nil {
+				return c.IP()
+			}
+			return users.UUID.String()
+		},
+		LimitReached: func(c *fiber.Ctx) error {
+			return helpers.ErrorResponse(c, fiber.StatusTooManyRequests, true, fiber.ErrTooManyRequests)
+		},
+	}))
 
 	api := r.App.Group("/api")
 	v1 := api.Group("/v1")

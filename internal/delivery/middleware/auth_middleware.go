@@ -1,8 +1,10 @@
 package middleware
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/user/entity"
 	userRepositories "github.com/SyahrulBhudiF/Vexora-Api/internal/domains/user/repository"
@@ -50,6 +52,19 @@ func (m *AuthMiddleware) EnsureAuthenticated(ctx *fiber.Ctx) error {
 		return helpers.ErrorResponse(ctx, fiber.StatusUnauthorized, true, err)
 	}
 
+	// check if user data is cached
+	redisKey := fmt.Sprintf("user:%s", claims.UUID)
+	cachedUser, err := m.tokenRepository.Get(redisKey)
+	if err == nil && cachedUser != "" {
+		var user entity.User
+		if err := json.Unmarshal([]byte(cachedUser), &user); err == nil {
+			ctx.Locals("accessToken", token)
+			ctx.Locals("user", &user)
+			return ctx.Next()
+		}
+	}
+
+	// get user data from database if not cached
 	user := entity.User{
 		Entity: types.Entity{
 			UUID: claims.UUID,
@@ -60,8 +75,16 @@ func (m *AuthMiddleware) EnsureAuthenticated(ctx *fiber.Ctx) error {
 		return helpers.ErrorResponse(ctx, fiber.StatusUnauthorized, true, err)
 	}
 
+	userJSON, err := json.Marshal(user)
+	if err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to cache user data"))
+	}
+
+	if err := m.tokenRepository.Set(redisKey, string(userJSON), 60*time.Minute); err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to save user data to cache"))
+	}
+
 	ctx.Locals("accessToken", token)
 	ctx.Locals("user", &user)
-
 	return ctx.Next()
 }

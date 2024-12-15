@@ -2,7 +2,9 @@ package history
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/history/entity"
 	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/history/repository"
 	"github.com/SyahrulBhudiF/Vexora-Api/internal/domains/history/service"
@@ -16,16 +18,15 @@ import (
 )
 
 type Handler struct {
-	service     *services.SpotifyService
-	historyRepo *repository.HistoryRepository
-	clientUri   string
-	clientKey   string
-	moodService *service.Service
+	service         *services.SpotifyService
+	historyRepo     *repository.HistoryRepository
+	tokenRepository *types.RedisRepository
+	moodService     *service.Service
 }
 
-func NewPlaylistHandler(services *services.SpotifyService, clientUri string, ClientKey string, repo *repository.HistoryRepository) *Handler {
+func NewPlaylistHandler(services *services.SpotifyService, clientUri string, ClientKey string, repo *repository.HistoryRepository, token *types.RedisRepository) *Handler {
 	moodService := service.NewService(clientUri, ClientKey)
-	return &Handler{service: services, historyRepo: repo, moodService: moodService}
+	return &Handler{service: services, historyRepo: repo, moodService: moodService, tokenRepository: token}
 }
 
 func (p *Handler) GetRecommendations(ctx *fiber.Ctx) error {
@@ -180,11 +181,29 @@ func (p *Handler) MoodDetect(ctx *fiber.Ctx) error {
 
 func (p *Handler) GetHistory(ctx *fiber.Ctx) error {
 	user, _ := ctx.Locals("user").(*entity2.User)
+
+	redisKey := fmt.Sprintf("user:%s:history", user.UUID)
+	cachedHistory, err := p.tokenRepository.Get(redisKey)
+	if err == nil && cachedHistory != "" {
+		var history []entity.History
+		if err := json.Unmarshal([]byte(cachedHistory), &history); err == nil {
+			return ctx.JSON(types.WebResponse[[]entity.History]{Message: "success", Success: true, ShouldNotify: false, Data: history})
+		}
+	}
+
 	history, err := p.historyRepo.FindByColumnValue("user_uuid", user.UUID)
 	if err != nil {
 		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, err)
 	}
 
+	historyJSON, err := json.Marshal(history)
+	if err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to cache history"))
+	}
+
+	if err := p.tokenRepository.Set(redisKey, string(historyJSON), 60*time.Minute); err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to save history data to cache"))
+	}
 	return ctx.JSON(types.WebResponse[[]entity.History]{Message: "success", Success: true, ShouldNotify: false, Data: history})
 }
 
