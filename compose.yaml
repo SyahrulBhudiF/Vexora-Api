@@ -26,3 +26,12 @@ services:
       - redis
     healthcheck:
       test: [ "CMD", "redis-cli","ping" ]
+  model:
+    build:
+      context: .
+      dockerfile: api/Vexora-Model/Dockerfile
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - HOST_IP=host.docker.internal
