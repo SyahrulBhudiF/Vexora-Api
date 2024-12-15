@@ -36,9 +36,9 @@ func Init(vexora *Vexora) {
 	userHandler := user.NewUserHandler(userRepo, tokenRepo, vexora.JWT, vexora.ImageKit, vexora.Viper, vexora.Mail)
 
 	historyRepo := repository2.NewHistoryRepository(vexora.DB)
-	playlistHandler := history.NewPlaylistHandler(vexora.Spotify, vexora.Viper.GetString("auth.client_url"), vexora.Viper.GetString("auth.client_key"), historyRepo)
+	playlistHandler := history.NewPlaylistHandler(vexora.Spotify, vexora.Viper.GetString("auth.client_url"), vexora.Viper.GetString("auth.client_key"), historyRepo, tokenRepo)
 
-	musicHandler := music.NewMusicHandler(repository3.NewMusicRepository(vexora.DB))
+	musicHandler := music.NewMusicHandler(repository3.NewMusicRepository(vexora.DB), tokenRepo)
 
 	authMiddleware := middleware.NewAuthMiddleware(userRepo, tokenRepo, vexora.JWT)
 

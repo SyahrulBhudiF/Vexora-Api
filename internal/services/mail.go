@@ -19,12 +19,12 @@ func NewMailService(host string, port int, email string, password string) *MailS
 	return &MailService{mail: mail}
 }
 
-func (m *MailService) SendMail(to string, subject string, otp string) error {
+func (m *MailService) SendMail(to string, subject string, message string) error {
 	mail := gomail.NewMessage()
 	mail.SetHeader("From", "ryu4w@gmail.com")
 	mail.SetHeader("To", to)
 	mail.SetHeader("Subject", subject)
-	mail.SetBody("text/html", "Your OTP is "+otp)
+	mail.SetBody("text/html", message)
 
 	if err := m.mail.DialAndSend(mail); err != nil {
 		return err
