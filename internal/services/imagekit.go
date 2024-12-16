@@ -64,7 +64,9 @@ func (service *ImageKitService) UploadImage(image string, folderPath string, fil
 }
 
 func (service *ImageKitService) DeleteImage(imageId string) error {
-	_, err := service.imageKit.Media.DeleteFile(service.ctx, imageId)
+	_, err := service.imageKit.Media.DeleteFile(service.ctx, string(imageId))
+	logrus.Info(imageId)
+	logrus.Info("delete error: %+v", err)
 
 	if err != nil {
 		return err

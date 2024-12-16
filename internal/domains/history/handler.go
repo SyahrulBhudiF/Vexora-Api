@@ -168,6 +168,12 @@ func (p *Handler) MoodDetect(ctx *fiber.Ctx) error {
 		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, err)
 	}
 
+	user, _ := ctx.Locals("user").(*entity2.User)
+	redisKey := fmt.Sprintf("user:%s:history", user.UUID)
+	if err := p.tokenRepository.Delete(redisKey); err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to delete history cache"))
+	}
+
 	finalPlaylist.Mood = mood.Data
 	finalPlaylist.CreatedAt = time.Now().Format(time.RFC3339)
 

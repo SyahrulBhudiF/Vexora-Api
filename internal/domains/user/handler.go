@@ -202,7 +202,7 @@ func (handler *Handler) UploadProfilePicture(ctx *fiber.Ctx) error {
 
 	if user.FileId != "" {
 		if err := handler.imageKitService.DeleteImage(user.FileId); err != nil {
-			return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to delete old image"))
+			return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, err)
 		}
 	}
 
@@ -210,6 +210,20 @@ func (handler *Handler) UploadProfilePicture(ctx *fiber.Ctx) error {
 	user.FileId = imageKitRes.Data.FileId
 	if err = handler.userRepo.Update(user); err != nil {
 		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to update profile"))
+	}
+
+	redisKey := fmt.Sprintf("user:%s", user.UUID)
+	if err := handler.tokenRepo.Delete(redisKey); err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to delete user cache"))
+	}
+
+	userJSON, err := json.Marshal(user)
+	if err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to marshal user data"))
+	}
+
+	if err := handler.tokenRepo.Set(redisKey, string(userJSON), 60*time.Minute); err != nil {
+		return helpers.ErrorResponse(ctx, fiber.StatusInternalServerError, true, fmt.Errorf("failed to set user cache"))
 	}
 
 	return helpers.SuccessResponse[any](ctx, fiber.StatusOK, false, "upload image success!", nil)
