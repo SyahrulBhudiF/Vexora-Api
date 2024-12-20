@@ -611,13 +611,8 @@ POST /mood-detection
 
 For support or inquiries, please contact:
 
-- Email: ryu4w@gmail.com
+- Email: syahrul4w@gmail.com
 
 ## ⚠️ Rate Limiting
 
 Please note that API endpoints may have rate limiting applied. Contact support for specific limitations.
-
-## 🔄 Version Information
-
-- Current Version: 1.0.0
-- Last Updated: 2024
